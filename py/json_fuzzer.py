@@ -18,31 +18,6 @@ def swap_json_values(json_object):
                 json_object[key] = randint(2, 10)
     return json_object
 
-def change_field_amount_json(binary, json_object):
-    jsonEntriesCount = len(json_object.keys())
-
-    # removing different entries amount of entries
-    for i in range(jsonEntriesCount):
-        copy = json_object.copy()
-        for x in range(i):
-            del copy[
-                list(json_object.keys())[x]
-            ]  # have chosen not to sort to have different subsets of fields removed (more random impact ?)
-        payload = json.dumps(copy).encode("UTF-8")
-        test_payload(binary, payload)
-
-    # add additional entries
-    for i in range(25):
-        copy = json_object.copy()
-        for x in range(i):
-            chance = randint(0, 1)
-            if chance:
-                copy[get_random_string(10)] = get_random_string(5)
-            else:
-                copy[get_random_string(10)] = randint(0, 262144)
-        payload = json.dumps(copy).encode("UTF-8")
-        test_payload(binary, payload)
-
 def deep_nested_json(dictionary, length):
     if length == 0:
         return randint(0, 1024)
@@ -143,7 +118,7 @@ class JSONFuzzer:
         except Exception as e:
             print(e)
 
-    def invalid_json(self):
+    def invalid_json():
         return [ chr(random.randrange(0, 255)) for x in range(0, 1000) ].encode('UTF-8')
 
     def random_json():
@@ -154,8 +129,8 @@ class JSONFuzzer:
 
         return json.dumps(d).encode('UTF-8')
 
-    def nullify_json():
-        payload = json_input.copy()
+    def nullify_json(self):
+        payload = self._json.copy()
         # set inputs to 0 equivelants
         for key in payload.keys():
             try:
@@ -165,14 +140,32 @@ class JSONFuzzer:
                 payload[key] = [] if (type(payload[key]) is dict) else '':
         return json.dumps(payload).encode("UTF-8")
 
-    def all_null():
-        copy = json_input.copy()
-        copy[key] = None for key in copy.keys()
-        return json.dumps(copy).encode("UTF-8")
+    def all_null(self):
+        payload = self._json.copy()
+        payload[key] = None for key in payload.keys()
+        return json.dumps(payload).encode("UTF-8")
+
+    def remove_fields(self):
+        for i in range(len(self._json.keys())):
+            payload = json_object.copy()
+            for x in range(i):
+                # have chosen not to sort to have different subsets of fields removed (more random impact ?)
+                del payload[list(self._json.keys())[x]]
+
+            yield json.dumps(payload).encode("UTF-8")
+
+    def add_fields(self):
+        # add additional entries
+        for i in range(25):
+            payload = json_object.copy()
+            for x in range(i):
+                payload[get_random_string(10)] = get_random_string(5) if randint(0, 1) else randint(0, 262144)
+
+            yield json.dumps(payload).encode("UTF-8")
 
     def generate_input(self):
         ##########################################################
-        ##             Test valid (format) XML data             ##
+        ##             Test valid (format) JSON data            ##
         yield ""    # check empty payload
         
         yield invalid_json()    # invalid json
@@ -180,8 +173,9 @@ class JSONFuzzer:
 
         # actual fuzzing
         yield nullify_json()            # nullify fields - zero and empty strings
-        yield all_null
-        yield change_field_amount_json()# create extra fields & delete some
+        yield all_null()
+        yield remove_fields()
+        yield add_fields()
         yield wrong_type_values_json()  # swapping expected data types - works for high level and sub dictionaries
         yield format_string_fuzz()      # format strings
         yield overflow_strings_json()   # overflow strings
