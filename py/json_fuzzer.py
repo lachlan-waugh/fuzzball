@@ -21,7 +21,7 @@ class JSONFuzzer:
         for i in range(100):
             d[get_random_string(5)] = chances[randint(0, 3)]
 
-        return json.dumps(d).encode('UTF-8')
+        return payload
 
     # ASDASD
     def nullify_json(self):
@@ -32,13 +32,16 @@ class JSONFuzzer:
                 payload[key] += 1
                 payload[key] = 0
             except TypeError:
-                payload[key] = [] if (type(payload[key]) is dict) else '':
-        return json.dumps(payload).encode("UTF-8")
+                payload[key] = [] if (type(payload[key]) is dict) else ''
+
+        return payload
 
     def all_null(self):
         payload = self._json.copy()
-        payload[key] = None for key in payload.keys()
-        return json.dumps(payload).encode("UTF-8")
+        for key in payload.keys():
+            payload[key] = None
+
+        return payload
 
     # asdasdasdas
     def add_fields(self):
@@ -48,7 +51,7 @@ class JSONFuzzer:
             for x in range(i):
                 payload[get_random_string(10)] = get_random_string(5) if randint(0, 1) else randint(0, 262144)
 
-            yield json.dumps(payload).encode("UTF-8")
+            yield payload
 
     def remove_fields(self):
         for i in range(len(self._json.keys())):
@@ -57,7 +60,7 @@ class JSONFuzzer:
                 # have chosen not to sort to have different subsets of fields removed (more random impact ?)
                 del payload[list(self._json.keys())[x]]
 
-            yield json.dumps(payload).encode("UTF-8")
+            yield payload
 
     def swap_json_fields(self):
         fields = [ self._json[entry] for entry in self._json ]
@@ -65,7 +68,7 @@ class JSONFuzzer:
         for entry in payload:
             payload[entry] = random.choice(fields)
 
-        return json.dumps(payload).encode("UTF-8")
+        return payload
 
     # ADASDSA
     def wrong_type_values_json(self):
@@ -74,13 +77,13 @@ class JSONFuzzer:
     # TODO: fix the actions switch
     def random_types(self):
         actions = {
-            "string": get_random_string(randint(16, 12000)),
-            "boolean": random.choice([True, False]),
-            "int": randint(-429496729, 429496729),
-            "none": None,
-            "list": list(range(randint(-64, 0), randint(0, 64))),
-            "float": random.uniform(-128, 128),
-            "dict": random_json(False)
+            'string': get_random_string(randint(16, 12000)),
+            'boolean': random.choice([True, False]),
+            'int': randint(-429496729, 429496729),
+            'none': None,
+            'list': list(range(randint(-64, 0), randint(0, 64))),
+            'float': random.uniform(-128, 128),
+            'dict': random_json(False)
         }
 
         for i in range(100):
@@ -89,7 +92,7 @@ class JSONFuzzer:
                 choice = random.choice(actions.keys)
                 payload(key) = actions[choice]
 
-        return json.dumps(payload).encode('UTF-8')
+        return payload
 
     # ASDASDASASDS
     # performs type swaps on ints and strings in root level of json dict
@@ -127,7 +130,8 @@ class JSONFuzzer:
                 except TypeError:
                     if type(payload[key]) is str:
                         payload[key] = get_random_string(i)
-            return json.dumps(payload).encode("UTF-8")
+
+            yield payload
 
     def integer_overflow_keys():
         keys = list(json_input.keys())
@@ -138,7 +142,8 @@ class JSONFuzzer:
                 payload[keys[i]] = 429496729
             except TypeError:
                 continue
-            return json.dumps(payload).encode("UTF-8")
+
+            return payload
 
     def integer_overflow_values():
         payload = json_input.copy()
@@ -148,7 +153,8 @@ class JSONFuzzer:
                 payload[key] = 429496729
             except TypeError:
                 continue
-        return json.dumps(payload).encode("UTF-8")
+
+        return payload
 
     def format_string_fuzz(self):
         payload = self._json.copy()
@@ -189,6 +195,6 @@ def json_fuzzer(binary, inputFile):
     with open(inputFile) as input:
         for test_input in JSONFuzzer(input).generate_input():
             try:
-                test_payload(binary, test_input)
+                test_payload(binary, json.dumps(test_input).encode('UTF-8'))
             except Exception as e:
                 print(e)
