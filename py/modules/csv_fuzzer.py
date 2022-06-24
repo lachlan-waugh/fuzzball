@@ -1,8 +1,8 @@
+import random
+import csv
 import sys
 import os
-from pwn import *
-import csv
-import random
+
 from helper import *
 
 def fields_csv(binary, csv_input, delimiter):
@@ -92,6 +92,7 @@ def change_header(binary, csv_input, delimiter):
         payload = payload[:-1] + "\n"
     test_payload(binary, payload)
 
+# overflows
 def overflow_numbers(binary, csv_input, delimiter):
     # zero
     payload = ""
@@ -131,64 +132,52 @@ def overflow_numbers(binary, csv_input, delimiter):
     test_payload(binary, payload)
     test_payload(binary, payload[firstline:])
 
-def byte_flip(binary, csv_input, delimiter):
+def byte_flip(self):
     payload = ""
     freq = random.randrange(1, 20)
-    for l in range(0, len(csv_input)):
-        for w in range(0, len(csv_input[l])):
-            payload += csv_input[l][w] + delimiter
+    
+    for l in range(0, len(self._csv)):
+        for w in range(0, len(self._csv[l])):
+            payload += self._csv[l][w] + self._delim
         payload = payload[:-1] + "\n"
     payload = bytearray(payload, "UTF-8")
+    
     for i in range(0, len(payload)):
         if random.randint(0, freq) == 1:
             payload[i] ^= random.getrandbits(7)
-    test_payload(binary, payload)
+
+    return payload
 
 class CSVFuzzer:
     def __init__(self, input):
         try:
-            csv_input = []
-            # Read and save csv output
             csvObj = csv.Sniffer().sniff(input.read(1024))
-            delimiter = csvObj.delimiter
             input.seek(0)
-            reader = csv.reader(input, delimiter=delimiter)
-            for row in reader:
-                csv_input.append(row)
-
-            self._csv = csv_input
-            self._delim = delimiter
+            self._delim = csvObj.delimiter
+            self._csv = [row for row in csv.reader(input, delimiter=self._delim)]
         except Exception as e:
             print(e)
 
     def generate_input(self):
         csv_input, delimiter = read_csv(inputFile)
         # check nothing
-        empty(binary)
+        yield empty(binary)
         # invalid csv - remove all delimiters
-        remove_delimiters(binary, csv_input, delimiter)
+        yield remove_delimiters(binary, csv_input, delimiter)
         # check number of lines
-        lines_csv(binary, csv_input, delimiter)
+        yield lines_csv(binary, csv_input, delimiter)
         # check fields - can return number of expected fields
-        fields_csv(binary, csv_input, delimiter)
+        yield fields_csv(binary, csv_input, delimiter)
         # change delimiters
-        change_delimiters(binary, csv_input)
+        yield change_delimiters(binary, csv_input)
         # overflowing fields with string
-        overflow_fields(binary, csv_input, delimiter)
+        yield overflow_fields(binary, csv_input, delimiter)
         # string format
-        format_string(binary, csv_input, delimiter)
+        yield format_string(binary, csv_input, delimiter)
         # change first line
-        change_header(binary, csv_input, delimiter)
+        yield change_header(binary, csv_input, delimiter)
         # overflow intergers
-        overflow_numbers(binary, csv_input, delimiter)
+        yield overflow_numbers(binary, csv_input, delimiter)
         # bit flipping
         for _ in range(0, 20):
-            byte_flip(binary, csv_input, delimiter)
-
-def csv_fuzzer(binary, inputFile):
-    with open(inputFile) as input:
-        for test_input in CSVFuzzer(input).generate_input():
-            try:
-                test_payload(binary, test_input)
-            except Exception as e:
-                print(e)
+            yield byte_flip(binary, csv_input, delimiter)
