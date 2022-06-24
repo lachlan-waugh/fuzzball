@@ -1,8 +1,8 @@
+import random
+import json
 import sys
 import os
-from pwn import *
-import json
-import random
+
 from helper import *
 
 class JSONFuzzer:

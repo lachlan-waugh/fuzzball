@@ -190,3 +190,23 @@ def csv_fuzzer(binary, inputFile):
     # bit flipping
     for _ in range(0, 20):
         byte_flip(binary, csv_input, delimiter)
+
+    def generate_input(self):
+        
+
+def json_fuzzer(binary, inputFile):
+    context.log_level = 'WARNING'
+
+    with open(inputFile) as input:
+        for test_input in JSONFuzzer(input).generate_input():
+            try:
+                test_payload(binary, json.dumps(test_input).encode('UTF-8'))
+            except Exception as e:
+                print(e)
+
+    class JSONFuzzer:
+    def __init__(self, input):
+        try:
+            self._json = json.load(input)
+        except Exception as e:
+            print(e)

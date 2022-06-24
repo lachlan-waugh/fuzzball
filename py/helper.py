@@ -10,16 +10,6 @@ from csv_fuzzer import *
 from xml_fuzzer import *
 from txt_fuzzer import *
 
-def complex_fuzz(file):
-    if is_json(file):
-        json_fuzzer(binary, inputFile)
-    elif is_xml(file):
-        xml_fuzzer(binary, inputFile)
-    elif is_csv(file):
-        csv_fuzzer(binary, inputFile)
-    else:
-        txt_fuzzer(binary, inputFile)
-
 def is_json(file):
     try:
         file.seek(0)
@@ -48,6 +38,16 @@ def is_xml(file):
     except Exception:
         return False
     return True
+
+def complex_fuzz(file):
+    if is_json(file):
+        json_fuzzer(binary, inputFile)
+    elif is_xml(file):
+        xml_fuzzer(binary, inputFile)
+    elif is_csv(file):
+        csv_fuzzer(binary, inputFile)
+    else:
+        txt_fuzzer(binary, inputFile)
 
 def check_segfault(p, output):
     p.proc.stdin.close()
