@@ -148,7 +148,6 @@ class JSONFuzzer:
 
     def random_json():
         d = {}
-
         chances = [None, get_random_string(6), randint(0, 1024), deep_nested_json({}, 32)]
         for i in range(100):
             d[get_random_string(5)] = chances[randint(0, 3)]
@@ -160,20 +159,15 @@ class JSONFuzzer:
         # set inputs to 0 equivelants
         for key in payload.keys():
             try:
-                copy[key] += 1
-                copy[key] = 0
+                payload[key] += 1
+                payload[key] = 0
             except TypeError:
-                if type(copy[key]) is dict:
-                    copy[key] = []
-                else:
-                    copy[key] = ""
-        payload = json.dumps(copy).encode("UTF-8")
-        test_payload(binary, payload)
-        # set all to null
-        copy = json_input.copy()
+                payload[key] = [] if (type(payload[key]) is dict) else '':
+        return json.dumps(payload).encode("UTF-8")
 
+    def all_null():
+        copy = json_input.copy()
         copy[key] = None for key in copy.keys()
-        
         return json.dumps(copy).encode("UTF-8")
 
     def generate_input(self):
@@ -186,6 +180,7 @@ class JSONFuzzer:
 
         # actual fuzzing
         yield nullify_json()            # nullify fields - zero and empty strings
+        yield all_null
         yield change_field_amount_json()# create extra fields & delete some
         yield wrong_type_values_json()  # swapping expected data types - works for high level and sub dictionaries
         yield format_string_fuzz()      # format strings
