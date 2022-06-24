@@ -25,12 +25,6 @@ def deep_nested_json(dictionary, length):
         dictionary[get_random_string(8)] = deep_nested_json({}, length - 1)
     return dictionary
 
-def wrong_type_values_json():
-    copy = json_input.copy()
-    payload = b""
-    payload += json.dumps(swap_json_values(copy)).encode("UTF-8")
-    test_payload(binary, payload)
-
 def get_random_format_string(size):
     format_string_identifiers = ["%x", "%c", "%d", "%p"]
     payload = ""
@@ -79,16 +73,6 @@ def format_string_fuzz():
             copy[key] = get_random_format_string(64)
         elif type(copy[key]) is int:
             copy[key] = 429496730
-    payload = json.dumps(copy).encode("UTF-8")
-    test_payload(binary, payload)
-
-def swap_json_fields():
-    fields = []
-    for entry in json_input:
-        fields.append(json_input[entry])
-    copy = json_input.copy()
-    for entry in copy:
-        copy[entry] = random.choice(fields)
     payload = json.dumps(copy).encode("UTF-8")
     test_payload(binary, payload)
 
@@ -163,6 +147,17 @@ class JSONFuzzer:
 
             yield json.dumps(payload).encode("UTF-8")
 
+    def swap_json_fields():
+        fields = [ self._json[entry] for entry in self._json ]
+        payload = json_input.copy()
+        for entry in payload:
+            payload[entry] = random.choice(fields)
+
+        return json.dumps(payload).encode("UTF-8")
+
+    def wrong_type_values_json():
+        return self._json.copy() + json.dumps(swap_json_values(self._json.copy())).encode("UTF-8")
+
     def generate_input(self):
         ##########################################################
         ##             Test valid (format) JSON data            ##
@@ -174,14 +169,17 @@ class JSONFuzzer:
         # actual fuzzing
         yield nullify_json()            # nullify fields - zero and empty strings
         yield all_null()
-        yield remove_fields()
+
         yield add_fields()
+        yield remove_fields()
+        yield swap_json_fields()        # swap fields
+        
         yield wrong_type_values_json()  # swapping expected data types - works for high level and sub dictionaries
+        yield random_types()            # random type assignment
+        
         yield format_string_fuzz()      # format strings
         yield overflow_strings_json()   # overflow strings
         yield overflow_integers_json()  # overflow integers
-        yield swap_json_fields()        # swap fields
-        yield random_types()            # random type assignment
 
 def json_fuzzer(binary, inputFile):
     context.log_level = 'WARNING'
