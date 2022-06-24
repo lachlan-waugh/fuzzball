@@ -4,8 +4,21 @@ import json
 import xml.etree.ElementTree as ET
 import multiprocessing as MP
 
-def empty(binary):
-    test_payload(binary, "")
+sys.path.append('./modules')
+from json_fuzzer import *
+from csv_fuzzer import *
+from xml_fuzzer import *
+from txt_fuzzer import *
+
+def complex_fuzz(file):
+    if is_json(file):
+        json_fuzzer(binary, inputFile)
+    elif is_xml(file):
+        xml_fuzzer(binary, inputFile)
+    elif is_csv(file):
+        csv_fuzzer(binary, inputFile)
+    else:
+        txt_fuzzer(binary, inputFile)
 
 def is_json(file):
     try:
@@ -80,4 +93,3 @@ def run_test(binary, payload):
                     sys.exit()
             else:
                 sys.exit()
-
