@@ -5,20 +5,6 @@ import csv
 import random
 from helper import *
 
-
-def read_csv(file):
-    csv_input = []
-    # Read and save csv output
-    with open(file) as f:
-        csvObj = csv.Sniffer().sniff(f.read(1024))
-        delimiter = csvObj.delimiter
-        f.seek(0)
-        reader = csv.reader(f, delimiter=delimiter)
-        for row in reader:
-            csv_input.append(row)
-    return csv_input, delimiter
-
-
 def fields_csv(binary, csv_input, delimiter):
     expected_field_no = -1
     for field_no in range(1, len(csv_input[0]) + 10):
@@ -43,7 +29,6 @@ def fields_csv(binary, csv_input, delimiter):
         test_payload(binary, "".join(error))
     return expected_field_no
 
-
 # Check if a enough CSV lines will crash the program
 def lines_csv(binary, csv_input, delimiter):
     for length in range(0, 1000, 100):
@@ -58,7 +43,6 @@ def lines_csv(binary, csv_input, delimiter):
 
         test_payload(binary, "".join(error))
 
-
 # remove all delimiters make file invalid
 def remove_delimiters(binary, csv_input, delimiter):
     payload = ""
@@ -66,14 +50,12 @@ def remove_delimiters(binary, csv_input, delimiter):
         payload += "".join(csv_input[l]) + "\n"
     test_payload(binary, payload)
 
-
 def change_delimiters(binary, csv_input):
     for x in [" ", ".", ",", "\t", "\n", "|", "/", "\\", ":", ";"]:
         payload = ""
         for l in range(0, len(csv_input)):
             payload += x.join(csv_input[l]) + "\n"
         test_payload(binary, payload)
-
 
 def overflow_fields(binary, csv_input, delimiter):
     for x in range(32, 1000, 32):
@@ -86,7 +68,6 @@ def overflow_fields(binary, csv_input, delimiter):
                 payload += "A" * x + delimiter
             payload = payload[:-1] + "\n"
         test_payload(binary, payload)
-
 
 def format_string(binary, csv_input, delimiter):
     for x in ["%p", "%s"]:
@@ -103,7 +84,6 @@ def format_string(binary, csv_input, delimiter):
             payload = payload[:-1] + "\n"
         test_payload(binary, payload)
 
-
 def change_header(binary, csv_input, delimiter):
     payload = ""
     for l in range(0, len(csv_input)):
@@ -111,7 +91,6 @@ def change_header(binary, csv_input, delimiter):
             payload += get_random_string(25) + delimiter
         payload = payload[:-1] + "\n"
     test_payload(binary, payload)
-
 
 def overflow_numbers(binary, csv_input, delimiter):
     # zero
@@ -152,7 +131,6 @@ def overflow_numbers(binary, csv_input, delimiter):
     test_payload(binary, payload)
     test_payload(binary, payload[firstline:])
 
-
 def byte_flip(binary, csv_input, delimiter):
     payload = ""
     freq = random.randrange(1, 20)
@@ -166,47 +144,51 @@ def byte_flip(binary, csv_input, delimiter):
             payload[i] ^= random.getrandbits(7)
     test_payload(binary, payload)
 
-
-def csv_fuzzer(binary, inputFile):
-    csv_input, delimiter = read_csv(inputFile)
-    # check nothing
-    empty(binary)
-    # invalid csv - remove all delimiters
-    remove_delimiters(binary, csv_input, delimiter)
-    # check number of lines
-    lines_csv(binary, csv_input, delimiter)
-    # check fields - can return number of expected fields
-    fields_csv(binary, csv_input, delimiter)
-    # change delimiters
-    change_delimiters(binary, csv_input)
-    # overflowing fields with string
-    overflow_fields(binary, csv_input, delimiter)
-    # string format
-    format_string(binary, csv_input, delimiter)
-    # change first line
-    change_header(binary, csv_input, delimiter)
-    # overflow intergers
-    overflow_numbers(binary, csv_input, delimiter)
-    # bit flipping
-    for _ in range(0, 20):
-        byte_flip(binary, csv_input, delimiter)
-
-    def generate_input(self):
-        
-
-def json_fuzzer(binary, inputFile):
-    context.log_level = 'WARNING'
-
-    with open(inputFile) as input:
-        for test_input in JSONFuzzer(input).generate_input():
-            try:
-                test_payload(binary, json.dumps(test_input).encode('UTF-8'))
-            except Exception as e:
-                print(e)
-
-    class JSONFuzzer:
+class CSVFuzzer:
     def __init__(self, input):
         try:
-            self._json = json.load(input)
+            csv_input = []
+            # Read and save csv output
+            csvObj = csv.Sniffer().sniff(input.read(1024))
+            delimiter = csvObj.delimiter
+            input.seek(0)
+            reader = csv.reader(input, delimiter=delimiter)
+            for row in reader:
+                csv_input.append(row)
+
+            self._csv = csv_input
+            self._delim = delimiter
         except Exception as e:
             print(e)
+
+    def generate_input(self):
+        csv_input, delimiter = read_csv(inputFile)
+        # check nothing
+        empty(binary)
+        # invalid csv - remove all delimiters
+        remove_delimiters(binary, csv_input, delimiter)
+        # check number of lines
+        lines_csv(binary, csv_input, delimiter)
+        # check fields - can return number of expected fields
+        fields_csv(binary, csv_input, delimiter)
+        # change delimiters
+        change_delimiters(binary, csv_input)
+        # overflowing fields with string
+        overflow_fields(binary, csv_input, delimiter)
+        # string format
+        format_string(binary, csv_input, delimiter)
+        # change first line
+        change_header(binary, csv_input, delimiter)
+        # overflow intergers
+        overflow_numbers(binary, csv_input, delimiter)
+        # bit flipping
+        for _ in range(0, 20):
+            byte_flip(binary, csv_input, delimiter)
+
+def csv_fuzzer(binary, inputFile):
+    with open(inputFile) as input:
+        for test_input in CSVFuzzer(input).generate_input():
+            try:
+                test_payload(binary, test_input)
+            except Exception as e:
+                print(e)

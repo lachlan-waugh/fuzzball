@@ -10,6 +10,9 @@ from csv_fuzzer import *
 from xml_fuzzer import *
 from txt_fuzzer import *
 
+def simple_fuzz():
+    empty()
+
 def is_json(file):
     try:
         file.seek(0)

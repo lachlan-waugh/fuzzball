@@ -29,9 +29,8 @@ simple_fuzz()
 
 # next, mutate the sample input
 with open(inputFile) as file:
-    complex_fuzz()
+    complex_fuzz(file)
 
     # busy wait until the workers finish
     while len(MP.active_children()) > 0:
         sleep(1)
-
