@@ -24,12 +24,17 @@ inputFile = PATH_TO_SANDBOX + sampleInputFileName
 if not (os.path.isfile(inputFile)):
     sys.exit('[x] sample input doesn\'t exist')
 
-# first test some basic input, that doesn't rely on the sample
-simple_fuzz()
-
 # next, mutate the sample input
-with open(inputFile) as file:
-    complex_fuzz(file)
+with open(inputFile) as input:
+    # first test some basic input, that doesn't rely on the sample
+    simple_fuzz()
+
+    # 
+    for test_input in get_fuzzer(input).generate_input():
+        try:
+            test_payload(binary, test_input)
+        except Exception as e:
+            print(e)
 
     # busy wait until the workers finish
     while len(MP.active_children()) > 0:

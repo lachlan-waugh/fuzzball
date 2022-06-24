@@ -5,10 +5,10 @@ import xml.etree.ElementTree as ET
 import multiprocessing as MP
 
 sys.path.append('./modules')
-from json_fuzzer import *
-from csv_fuzzer import *
-from xml_fuzzer import *
-from txt_fuzzer import *
+from json_fuzzer import JSONFuzzer
+from csv_fuzzer import CSVFuzzer
+from xml_fuzzer import XMLFuzzer
+from txt_fuzzer import TXTFuzzer
 
 def simple_fuzz():
     empty()
@@ -42,15 +42,15 @@ def is_xml(file):
         return False
     return True
 
-def complex_fuzz(file):
+def get_fuzzer(file):
     if is_json(file):
-        json_fuzzer(binary, inputFile)
+        return JSONFuzzer(file)
     elif is_xml(file):
-        xml_fuzzer(binary, inputFile)
+        return XMLFuzzer(file)
     elif is_csv(file):
-        csv_fuzzer(binary, inputFile)
+        return CSVFuzzer(file)
     else:
-        txt_fuzzer(binary, inputFile)
+        return TXTFuzzer(file)
 
 def check_segfault(p, output):
     p.proc.stdin.close()
