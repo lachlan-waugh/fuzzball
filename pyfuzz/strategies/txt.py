@@ -32,14 +32,14 @@ class TXTStrategy:
         try:
             print('[*] TXT input detected, mutation started')
             input.seek(0)
-            self._txt = input.readlines()
+            self.txt = input.readlines()
         except Exception as e:
             print(f'[x] TXTStrategy.__init__ error: {e}')
 
-            # Mutate numbers only (SLOW FINE GRAIN)
+    # Mutate numbers only (SLOW FINE GRAIN)
     def mutation_based(self):
         perm_inputs = []
-        for line in self._txt:
+        for line in self.txt:
             perm_lines = []
             for perm_line in defined_num_perm(line, len(line), -100, 100, 1):
                 if isinstance(perm_line, int):
@@ -54,7 +54,7 @@ class TXTStrategy:
     def mutate_numbers(self):
         # Mutate numbers only (FAST WIDE SWEEP)
         perm_inputs = []
-        for line in self._txt:
+        for line in self.txt:
             perm_lines = []
             for perm_line in defined_num_perm(line, len(line), -5000, 5000, 10):
                 if isinstance(perm_line, int):
@@ -68,7 +68,7 @@ class TXTStrategy:
 
     def mutate_everything(self):
         perm_inputs = []
-        for line in self._txt:
+        for line in self.txt:
             perm_lines = []
             for perm_line in defined_perm(line, len(line)):
                 perm_lines.append(f'{perm_line}\n')
@@ -80,7 +80,7 @@ class TXTStrategy:
         with alive_bar(31, dual_line=True, title='integer overflow'.ljust(20)) as bar:
             for i in range(31):
                 payload = b''
-                for _ in self._txt:
+                for _ in self.txt:
                     payload += str(1 << i).encode() + b'\n'
 
                 bar()
@@ -89,7 +89,7 @@ class TXTStrategy:
         with alive_bar(13, dual_line=True, title='buffer overflow'.ljust(20)) as bar:
             for i in range(13):
                 payload = b''
-                for _ in self._txt:
+                for _ in self.txt:
                     payload += f'{cyclic(1 << i)}\n'.encode()
 
                 bar()
@@ -98,7 +98,7 @@ class TXTStrategy:
         with alive_bar(10, dual_line=True, title='expand lines'.ljust(20)) as bar:
             for i in range(1, 11):
                 payload = b''
-                for line in self._txt:
+                for line in self.txt:
                     payload += f'{line[:-1] * i}\n'.encode()
                 
                 bar()
@@ -106,7 +106,7 @@ class TXTStrategy:
 
         with alive_bar(1, dual_line=True, title='negating numbers'.ljust(20)) as bar:
             payload = b''
-            for line in self._txt:
+            for line in self.txt:
                 try:
                     payload += f'{-int(line[:-1])}\n'.encode()
                 except ValueError:
@@ -117,7 +117,7 @@ class TXTStrategy:
 
         with alive_bar(1, dual_line=True, title='negate & expand'.ljust(20)) as bar:
             payload = b''
-            for line in self._txt:
+            for line in self.txt:
                 try:
                     payload += f'{-int(line[:-1])}\n'.encode()
                 except ValueError:
@@ -128,7 +128,7 @@ class TXTStrategy:
 
         with alive_bar(99, dual_line=True, title='format strings'.ljust(20)) as bar:
             for i in range(1, 100):
-                payload = f'%{i}$s %{i}$x %{i}$p %{i}$c\n'.encode() * len(self._txt)
+                payload = f'%{i}$s %{i}$x %{i}$p %{i}$c\n'.encode() * len(self.txt)
                 
                 bar()
                 yield payload

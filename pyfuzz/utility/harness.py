@@ -5,7 +5,7 @@ context.log_level = 'ERROR'
 
 class Harness:
     def __init__(self, binary):
-        self._binary = binary
+        self.binary = binary
 
     def run(self, inputs):
         # first test some basic input, that doesn't rely on the sample
@@ -13,7 +13,7 @@ class Harness:
             try:
                 self.test_payload(test_input)
             except Exception as e:
-                print(f'[-] ERROR @ runner run: {e}')
+                print(f'[x] Harness.run error: {e}')
 
     def test_payload(self, payload):
         # print(f'[+] "{type(payload)}" "{payload}"')
@@ -34,7 +34,7 @@ class Harness:
 
     # 
     def run_test(self, payload):
-        with process(self._binary) as p:
+        with process(self.binary) as p:
             # commented because payload doesn't needed to be unicoded
             # test payload is byte array
             p.send(payload.encode('UTF-8'))

@@ -6,7 +6,7 @@ class JSONStrategy:
     def __init__(self, input):
         print('[*] JSON input detected, mutation started')
         try:
-            self._json = input
+            self.json = input
         except Exception as e:
             print(f'[x] JSONStrategy.__init__ error: {e}')
 
@@ -31,7 +31,7 @@ class JSONStrategy:
 
     # ASDASD
     def nullify_json(self):
-        payload = self._json.copy()
+        payload = self.json.copy()
         # set inputs to 0 equivelants
         for key in payload.keys():
             try:
@@ -43,7 +43,7 @@ class JSONStrategy:
         return json.dumps(payload).encode('UTF-8')
 
     def all_null(self):
-        payload = self._json.copy()
+        payload = self.json.copy()
         for key in payload.keys():
             payload[key] = None
 
@@ -60,17 +60,17 @@ class JSONStrategy:
             yield payload
 
     def remove_fields(self):
-        for i in range(len(self._json.keys())):
+        for i in range(len(self.json.keys())):
             payload = json_object.copy()
             for x in range(i):
                 # have chosen not to sort to have different subsets of fields removed (more random impact ?)
-                del payload[list(self._json.keys())[x]]
+                del payload[list(self.json.keys())[x]]
 
             yield payload.encode('UTF-8')
 
     def swap_json_fields(self):
-        fields = [ self._json[entry] for entry in self._json ]
-        payload = self._json.copy()
+        fields = [ self.json[entry] for entry in self.json ]
+        payload = self.json.copy()
         for entry in payload:
             payload[entry] = random.choice(fields)
 
@@ -78,20 +78,20 @@ class JSONStrategy:
 
     # performs type swaps on ints and strings in root level of json dict
     def swap_json_values(self):
-        for key in self._json:
+        for key in self.json:
             try:
-                self._json[key] += 1
-                self._json[key] = get_random_string(random.randint(2, 10))
+                self.json[key] += 1
+                self.json[key] = get_random_string(random.randint(2, 10))
             except TypeError:
-                if type(self._json[key]) is dict:
-                    self._json[key] = swap_json_values(self._json[key])
+                if type(self.json[key]) is dict:
+                    self.json[key] = swap_json_values(self.json[key])
                 else:
-                    self._json[key] = random.randint(2, 10)
-        return self._json
+                    self.json[key] = random.randint(2, 10)
+        return self.json
 
     # ADASDSA
     def wrong_type_values(self):
-        return json.dumps(self._json.copy() + json.dumps(swap_json_values(self._json.copy())).encode("UTF-8")).encode("UTF-8")
+        return json.dumps(self.json.copy() + json.dumps(swap_json_values(self.json.copy())).encode("UTF-8")).encode("UTF-8")
 
     # TODO: fix the actions switch
     def random_types(self):
@@ -106,7 +106,7 @@ class JSONStrategy:
         }
 
         for i in range(100):
-            payload = self._json.copy()
+            payload = self.json.copy()
             for key in payload.keys():
                 choice = random.choice(actions.keys)
                 payload[key] = actions[choice]
@@ -116,7 +116,7 @@ class JSONStrategy:
     # ASDASDASASDS
 
     def format_string(self):
-        payload = self._json.copy()
+        payload = self.json.copy()
         for key in payload.keys():
             if type(payload[key]) is str:
                 payload[key] = get_random_format_string(64)
@@ -126,7 +126,7 @@ class JSONStrategy:
         return json.dumps(copy).encode("UTF-8")
 
     def overflow_strings(self):
-        payload = self._json.copy()
+        payload = self.json.copy()
         for i in range(1000, 12000, 200):
             for key in payload.keys():
                 try:
@@ -139,9 +139,9 @@ class JSONStrategy:
             yield payload
 
     def integer_overflow_keys(self):
-        keys = list(self._json.keys())
+        keys = list(self.json.keys())
         for i in range(len(keys)):
-            payload = self._json.copy()
+            payload = self.json.copy()
             try:
                 payload[keys[i]] += 1
                 payload[keys[i]] = 429496729
@@ -151,7 +151,7 @@ class JSONStrategy:
             yield payload
 
     def integer_overflow_values(self):
-        payload = self._json.copy()
+        payload = self.json.copy()
         for key in copy.keys():
             try:
                 payload[key] += 1

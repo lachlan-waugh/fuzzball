@@ -10,13 +10,13 @@ class XMLStrategy:
     def __init__(self, input):
         try:
             print('[*] XML input detected, mutation started')
-            self._xml = input.getroot()
-            self._text = ET.tostring(self._xml)
+            self.xml = input.getroot()
+            self.text = ET.tostring(self.xml)
         except Exception as e:
             print(f'[x] XMLStrategy.__init__ error: {e}')
 
     def _byteflip(self):
-        bytes = bytearray(self._text.decode(), 'UTF-8')
+        bytes = bytearray(self.text.decode(), 'UTF-8')
 
         for i in range(0, len(bytes)):
             if random.randint(0, 20) == 1:
@@ -29,7 +29,7 @@ class XMLStrategy:
     a vulnerability in a certain part of the parsing of the document
     """
     def _add_node(self, functions):
-        root = copy.deepcopy(self._xml)
+        root = copy.deepcopy(self.xml)
         child = ET.SubElement(root, 'div')
 
         def _link_fstring():
@@ -80,7 +80,7 @@ class XMLStrategy:
                     in order to change the data
     """
     def _mutate_node(self, child, functions):
-        root = copy.deepcopy(self._xml)     # Don't overwrite the original text
+        root = copy.deepcopy(self.xml)     # Don't overwrite the original text
         child = root.find(child.tag)        #
 
         # remove the given node from the root
@@ -138,7 +138,7 @@ class XMLStrategy:
     Treats the XML data as a string and replaces certain important parts with invalid data 
     """
     def _replace_text(self, functions):
-        lines = self._text.decode()
+        lines = self.text.decode()
 
         def _delete_open_tag():
             return re.sub('<[^>]+>', '', lines)
@@ -175,23 +175,23 @@ class XMLStrategy:
     def generate_input(self):
         ##########################################################
         ##             Test valid (format) XML data             ##
-        with alive_bar(12 * len(self._xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
+        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
             # Modify the test input to still be in the correct format for XML
-            for child in self._xml:
+            for child in self.xml:
                 for i in range(0, 6):
-                    yield ET.tostring(self._mutate_node(child, [i])).decode()
+                    yield ET.tostring(self.mutate_node(child, [i])).decode()
                     bar()
 
-                    yield ET.tostring(self._mutate_node(child, range(1, 6))).decode()
+                    yield ET.tostring(self.mutate_node(child, range(1, 6))).decode()
                     bar()
 
         with alive_bar(12, dual_line=True, title='adding nodes'.ljust(20)) as bar:
             # Create some new nodes and add these to the test input
             for i in range(0, 6):
-                yield ET.tostring(self._add_node([i])).decode()
+                yield ET.tostring(self.add_node([i])).decode()
                 bar()
 
-                yield ET.tostring(self._add_node((range(0, 5)))).decode()
+                yield ET.tostring(self.add_node((range(0, 5)))).decode()
                 bar()
 
         ##########################################################
@@ -200,16 +200,16 @@ class XMLStrategy:
         ##            Test invalid (format) XML data            ##
         with alive_bar(10, dual_line=True, title='replacing content'.ljust(20)) as bar:
             for i in range(0, 5):
-                yield self._replace_text([i])
+                yield self.replace_text([i])
                 bar()
 
-                yield self._replace_text(range(0, 5))
+                yield self.replace_text(range(0, 5))
                 bar()
 
         with alive_bar(1000, dual_line=True, title='testing byteflips'.ljust(20)) as bar:
             for i in range(0, 1000):
                 # test random bitflips on the test input
-                yield self._byteflip()
+                yield self.byteflip()
                 bar()
 
         with alive_bar(1000, dual_line=True, title='testing random data'.ljust(20)) as bar:

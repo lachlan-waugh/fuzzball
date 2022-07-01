@@ -132,9 +132,9 @@ def byte_flip(self):
     payload = ""
     freq = random.randrange(1, 20)
     
-    for l in range(0, len(self._csv)):
-        for w in range(0, len(self._csv[l])):
-            payload += self._csv[l][w] + self._delim
+    for l in range(0, len(self.csv)):
+        for w in range(0, len(self.csv[l])):
+            payload += self.csv[l][w] + self.delim
         payload = payload[:-1] + "\n"
     payload = bytearray(payload, "UTF-8")
     
@@ -150,8 +150,8 @@ class CSVStrategy:
             print('[*] CSV input detected, mutation started')
             csvObj = csv.Sniffer().sniff(input.read(1024))
             input.seek(0)
-            self._delim = csvObj.delimiter
-            self._csv = [row for row in csv.reader(input, delimiter=self._delim)]
+            self.delim = csvObj.delimiter
+            self.csv = [row for row in csv.reader(input, delimiter=self.delim)]
         except Exception as e:
             print(f'[x] CSVStrategy.__init__ error: {e}')
 
