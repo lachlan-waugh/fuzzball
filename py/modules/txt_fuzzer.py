@@ -3,29 +3,24 @@ import logging
 import sys
 from pwn import flat
 from time import sleep
-from helper import test_payload, empty, cyclic
-
+from helper import *
 
 def alpha_perm(length):
     alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n"
     return itertools.combinations_with_replacement(alphabet, length)
 
-
 def num_perm(length):
     alphabet = "0123456789\n"
     return itertools.combinations_with_replacement(alphabet, length)
-
 
 def alphanum_perm(length):
     alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n"
     return itertools.combinations_with_replacement(alphabet, length)
 
-
 def defined_perm(alphabet, length):
     return itertools.combinations_with_replacement(
         alphabet[:-1], length - 1
     )  # do not include trailing \n
-
 
 def defined_num_perm(alphabet, length, start, stop, speed):
     try:
@@ -34,11 +29,7 @@ def defined_num_perm(alphabet, length, start, stop, speed):
         return alphabet[:-1]
     return range(start, stop, speed)
 
-
 def txt_fuzzer(binary, inputFile):
-
-    print("plaintext detected")
-
     # Ordered by speed of execution and likelihood of success
 
     ## Basic functions
@@ -168,13 +159,12 @@ def txt_fuzzer(binary, inputFile):
         for payload in alphanum_perm(i):
             test_payload(binary, "".join(payload).encode())
 
-
-class JSONFuzzer:
+class TXTFuzzer:
     def __init__(self, input):
         try:
             self._txt = input.readlines()
         except Exception as e:
-            print(e)
+            print(f'[x] {e}')
 
     def generate_input(self):
         yield 1

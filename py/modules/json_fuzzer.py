@@ -10,18 +10,26 @@ class JSONFuzzer:
         try:
             self._json = json.load(input)
         except Exception as e:
-            print(e)
+            print(f'[x] {e}')
+
+    def deep_nested_json(dictionary, length):
+        if length == 0:
+            return randint(0, 1024)
+        else:
+            dictionary[get_random_string(8)] = deep_nested_json({}, length - 1)
+
+        return dictionary
 
     def invalid_json():
         return [ chr(random.randrange(0, 255)) for x in range(0, 1000) ].encode('UTF-8')
 
     def random_json():
-        d = {}
+        payload = {}
         chances = [None, get_random_string(6), randint(0, 1024), deep_nested_json({}, 32)]
         for i in range(100):
-            d[get_random_string(5)] = chances[randint(0, 3)]
+            payload[get_random_string(5)] = chances[randint(0, 3)]
 
-        return payload
+        return json.dumps(payload).encode('UTF-8')
 
     # ASDASD
     def nullify_json(self):
@@ -34,14 +42,14 @@ class JSONFuzzer:
             except TypeError:
                 payload[key] = [] if (type(payload[key]) is dict) else ''
 
-        return payload
+        return json.dumps(payload).encode('UTF-8')
 
     def all_null(self):
         payload = self._json.copy()
         for key in payload.keys():
             payload[key] = None
 
-        return payload
+        return json.dumps(payload).encode('UTF-8')
 
     # asdasdasdas
     def add_fields(self):
@@ -70,9 +78,22 @@ class JSONFuzzer:
 
         return payload
 
+    # performs type swaps on ints and strings in root level of json dict
+    def swap_json_values(self):
+        for key in self._json:
+            try:
+                self._json[key] += 1
+                self._json[key] = get_random_string(randint(2, 10))
+            except TypeError:
+                if type(self._json[key]) is dict:
+                    self._json[key] = swap_json_values(self._json[key])
+                else:
+                    self._json[key] = randint(2, 10)
+        return self._json
+
     # ADASDSA
-    def wrong_type_values_json(self):
-        return self._json.copy() + json.dumps(swap_json_values(self._json.copy())).encode("UTF-8")
+    def wrong_type_values(self):
+        return json.dumps(self._json.copy() + json.dumps(swap_json_values(self._json.copy())).encode("UTF-8")).encode("UTF-8")
 
     # TODO: fix the actions switch
     def random_types(self):
@@ -90,38 +111,24 @@ class JSONFuzzer:
             payload = self._json.copy()
             for key in payload.keys():
                 choice = random.choice(actions.keys)
-                payload(key) = actions[choice]
+                payload[key] = actions[choice]
 
         return payload
 
     # ASDASDASASDS
-    # performs type swaps on ints and strings in root level of json dict
-    def swap_json_values(self):
-        for key in self._json:
-            try:
-                self._json[key] += 1
-                self._json[key] = get_random_string(randint(2, 10))
-            except TypeError:
-                if type(self._json[key]) is dict:
-                    self._json[key] = swap_json_values(self._json[key])
-                else:
-                    self._json[key] = randint(2, 10)
-        return self._json
 
-    def deep_nested_json(dictionary, length):
-        if length == 0:
-            return randint(0, 1024)
-        else:
-            dictionary[get_random_string(8)] = deep_nested_json({}, length - 1)
+    def format_string(self):
+        payload = self._json.copy()
+        for key in payload.keys():
+            if type(payload[key]) is str:
+                payload[key] = get_random_format_string(64)
+            elif type(copy[key]) is int:
+                payload[key] = 429496730
 
-        return dictionary
+        return json.dumps(copy).encode("UTF-8")
 
-    # TODO: fix
-    def get_random_format_string(size):
-        return ''.join(random.choice(['%x', '%c', '%d', '%p']) for _ in range(size))
-
-    def overflow_strings_json():
-        payload = json_input.copy()
+    def overflow_strings(self):
+        payload = self._json.copy()
         for i in range(1000, 12000, 200):
             for key in payload.keys():
                 try:
@@ -133,20 +140,20 @@ class JSONFuzzer:
 
             yield payload
 
-    def integer_overflow_keys():
-        keys = list(json_input.keys())
+    def integer_overflow_keys(self):
+        keys = list(self._json.keys())
         for i in range(len(keys)):
-            payload = json_input.copy()
+            payload = self._json.copy()
             try:
                 payload[keys[i]] += 1
                 payload[keys[i]] = 429496729
             except TypeError:
                 continue
 
-            return payload
+            yield payload
 
-    def integer_overflow_values():
-        payload = json_input.copy()
+    def integer_overflow_values(self):
+        payload = self._json.copy()
         for key in copy.keys():
             try:
                 payload[key] += 1
@@ -155,16 +162,6 @@ class JSONFuzzer:
                 continue
 
         return payload
-
-    def format_string_fuzz(self):
-        payload = self._json.copy()
-        for key in payload.keys():
-            if type(payload[key]) is str:
-                payload[key] = get_random_format_string(64)
-            elif type(copy[key]) is int:
-                payload[key] = 429496730
-
-        return json.dumps(copy).encode("UTF-8")
 
     def generate_input(self):
         ##########################################################
@@ -180,21 +177,14 @@ class JSONFuzzer:
 
         yield add_fields()
         yield remove_fields()
+
         yield swap_json_fields()        # swap fields
+        yield swap_json_values()        # swap values
         
-        yield wrong_type_values_json()  # swapping expected data types - works for high level and sub dictionaries
+        yield wrong_type_values()  # swapping expected data types - works for high level and sub dictionaries
         yield random_types()            # random type assignment
-        
-        yield format_string_fuzz()      # format strings
-        yield overflow_strings_json()   # overflow strings
-        yield overflow_integers_json()  # overflow integers
 
-def json_fuzzer(binary, inputFile):
-    context.log_level = 'WARNING'
-
-    with open(inputFile) as input:
-        for test_input in JSONFuzzer(input).generate_input():
-            try:
-                test_payload(binary, json.dumps(test_input).encode('UTF-8'))
-            except Exception as e:
-                print(e)
+        yield format_string()      # format strings
+        yield overflow_strings()   # overflow strings
+        yield integer_overflow_keys()   # 
+        yield integer_overflow_values() # 

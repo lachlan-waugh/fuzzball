@@ -1,7 +1,10 @@
 from helper import *
+from pwn import *
 import sys
 import os
 import logging
+
+# context.log_level = 'ERROR'
 
 # argument error checking
 # 1 = binary name
@@ -12,28 +15,19 @@ if len(sys.argv) != 3:
 
 binary_file, sample_input = sys.argv[1:3]
 if not (os.path.isfile(binary_file)):
-    sys.exit(f'[x] ERROR: binary file \'{binary_file}\' not found')
+    sys.exit(f'[x] ERROR: binary file \'{os.path.basename(binary_file)}\' not found')
 elif not (os.path.isfile(sample_input)):
-    sys.exit(f'[x] ERROR: sample input \'{sample_input}\' not found.')
+    sys.exit(f'[x] ERROR: sample input \'{os.path.basename(sample_input)}\' not found.')
 else:
-    print(f'[*] binary: {binary_file}\n[*] sample input: {sample_input}')
+    print(f'[*] binary file: {os.path.basename(binary_file)}\n[*] sample input: {os.path.basename(sample_input)}')
+
+# first test some basic input, that doesn't rely on the sample
+generate_inputs(binary_file, simple_fuzz())
 
 # next, mutate the sample input
 with open(sample_input) as input:
-    # first test some basic input, that doesn't rely on the sample
-    for test_input in simple_fuzz():
-        try:
-            test_payload(binary_file, test_input)
-        except Exception as e:
-            print(e)
+    generate_inputs(binary_file, get_fuzzer(input).generate_input())
 
-    # 
-    for test_input in get_fuzzer(input).generate_input():
-        try:
-            test_payload(binary_file, test_input)
-        except Exception as e:
-            print(e)
-
-    # busy wait until the workers finish
-    while len(MP.active_children()) > 0:
-        sleep(1)
+# busy wait until the workers finish
+while len(MP.active_children()) > 0:
+    sleep(1)

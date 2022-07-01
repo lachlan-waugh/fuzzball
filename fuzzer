@@ -1,4 +1,11 @@
 #!/bin/bash
+
+help() {
+    echo "./fuzzer [options]"
+    echo "       - install"
+    echo "       - [--test] binary_name input_name"
+}
+
 if [ $1 = "--install" ]; then
     sudo apt update
     sudo apt install software-properties-common
@@ -7,10 +14,10 @@ if [ $1 = "--install" ]; then
     sudo apt install python3.8
 elif [ $1 = "--test" ]; then
     # test a number of different binaries at once
+elif [ $1 = "--help" ]; then
+    help;
 elif [ $# = 2 ]; then
-    # run the fuzzer
+    (cd /py && exec python3 -m py/fuzzer.py "$@")
 else; then
-    echo "./fuzzer [options]"
-    echo "       - install"
-    echo "       - [--test] binary_name input_name"
+    help;
 fi

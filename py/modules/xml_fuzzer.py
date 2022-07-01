@@ -12,10 +12,10 @@ from helper import *
 class XMLFuzzer:
     def __init__(self, input):
         try:
-            self._xml = ET.parse(input).getroot()
+            self._xml = ET.parse(input()).getroot()
             self._text = ET.tostring(self._xml)
         except Exception as e:
-            print(e)
+            print(f'[x] XMLFuzzer __init__ error: {e}')
 
     def _byteflip(self):
         bytes = bytearray(self._text.decode(), 'UTF-8')
@@ -180,11 +180,10 @@ class XMLFuzzer:
         return lines
 
     def generate_input(self):
-        # test how the binary reacts to no input
-        yield ""
-
         ##########################################################
         ##             Test valid (format) XML data             ##
+
+        print('hello')
 
         # Modify the test input to still be in the correct format for XML
         for child in self._xml:
@@ -192,6 +191,8 @@ class XMLFuzzer:
                 yield ET.tostring(self._mutate_node(child, [i])).decode()
 
             yield ET.tostring(self._mutate_node(child, range(1, 6))).decode()
+
+        print('hello2')
 
         # Create some new nodes and add these to the test input
         for i in range(0, 6):
