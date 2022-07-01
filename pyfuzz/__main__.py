@@ -1,1 +1,3 @@
-from .fuzzer import Fuzzer
+from pyfuzz import fuzzer
+
+fuzzer.Fuzzer().fuzz()
