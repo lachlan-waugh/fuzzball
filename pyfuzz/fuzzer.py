@@ -1,6 +1,6 @@
-from utility.helper import *
-from utility.harness import *
-from bootstrap import *
+from .utility.helper import *
+from .utility.harness import *
+from .bootstrap import *
 
 """
 > $1: binary name

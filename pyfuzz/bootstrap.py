@@ -2,11 +2,11 @@ import xml.etree.ElementTree as ET
 import json
 import csv
 
-from strategies.json import JSONStrategy
-from strategies.csv import CSVStrategy
-from strategies.xml import XMLStrategy
-from strategies.txt import TXTStrategy
-from strategies.common import CommonStrategy
+from .strategies.json import JSONStrategy
+from .strategies.csv import CSVStrategy
+from .strategies.xml import XMLStrategy
+from .strategies.txt import TXTStrategy
+from .strategies.common import CommonStrategy
 
 """
 Used to determine the type of sample input provided for smarter fuzzing
