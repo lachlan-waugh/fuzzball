@@ -1,8 +1,7 @@
+from helper import *
 import sys
 import os
 import logging
-
-from helper import *
 
 # argument error checking
 # 1 = binary name
@@ -11,28 +10,27 @@ from helper import *
 if len(sys.argv) != 3:
     sys.exit("Usage: python3 fuzzer.py [binaryName] [sampleInput]")
 
-binaryFileName = sys.argv[1]
-sampleInputFileName = sys.argv[2]
-print(f'[*] binary: {sampleInputFileName}\n[*] sample input: {binaryFileName}')
-
-PATH_TO_SANDBOX = ""  # make empty string for deployment
-binary = PATH_TO_SANDBOX + binaryFileName
-if not (os.path.isfile(binary)):
-    sys.exit('[x] binary doesn\'t exist')
-
-inputFile = PATH_TO_SANDBOX + sampleInputFileName
-if not (os.path.isfile(inputFile)):
-    sys.exit('[x] sample input doesn\'t exist')
+binary_file, sample_input = sys.argv[1:3]
+if not (os.path.isfile(binary_file)):
+    sys.exit(f'[x] ERROR: binary file \'{binary_file}\' not found')
+elif not (os.path.isfile(sample_input)):
+    sys.exit(f'[x] ERROR: sample input \'{sample_input}\' not found.')
+else:
+    print(f'[*] binary: {binary_file}\n[*] sample input: {sample_input}')
 
 # next, mutate the sample input
-with open(inputFile) as input:
+with open(sample_input) as input:
     # first test some basic input, that doesn't rely on the sample
-    simple_fuzz()
+    for test_input in simple_fuzz():
+        try:
+            test_payload(binary_file, test_input)
+        except Exception as e:
+            print(e)
 
     # 
     for test_input in get_fuzzer(input).generate_input():
         try:
-            test_payload(binary, test_input)
+            test_payload(binary_file, test_input)
         except Exception as e:
             print(e)
 

@@ -11,46 +11,32 @@ from xml_fuzzer import XMLFuzzer
 from txt_fuzzer import TXTFuzzer
 
 def simple_fuzz():
-    empty()
+    yield ''
 
-def is_json(file):
+def get_fuzzer(file):
     try:
         file.seek(0)
         jsonObj = json.load(file)
+        return JSONFuzzer
     except ValueError as e:
-        return False
-    return True
+        pass
 
-def is_csv(file):
     try:
         file.seek(0)
         csvObj = csv.Sniffer().sniff(file.read(1024))
+        if (csvObj.delimiter in [csv.excel.delimiter, csv.excel_tab.delimiter]):
+            return CSVFuzzer
     except csv.Error:
-        return False
+        pass
 
-    if (csv.excel.delimiter == csvObj.delimiter
-        or csv.excel_tab.delimiter == csvObj.delimiter):
-        return True
-
-    return False
-
-def is_xml(file):
-    file.seek(0)
     try:
+        file.seek(0)
         xmlObj = ET.parse(file)
+        return XMLFuzzer
     except Exception:
-        return False
-    return True
+        pass
 
-def get_fuzzer(file):
-    if is_json(file):
-        return JSONFuzzer(file)
-    elif is_xml(file):
-        return XMLFuzzer(file)
-    elif is_csv(file):
-        return CSVFuzzer(file)
-    else:
-        return TXTFuzzer(file)
+    return TXTFuzzer
 
 def check_segfault(p, output):
     p.proc.stdin.close()
@@ -63,7 +49,7 @@ def check_segfault(p, output):
         return False
 
 def get_random_string(length):
-    return "".join(random.choice(string.ascii_lowercase + string.ascii_uppercase) for i in range(length))
+    return ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase) for i in range(length))
 
 def test_payload(binary, payload):
     # Prepare payload for sending

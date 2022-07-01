@@ -12,5 +12,5 @@ elif [ $# = 2 ]; then
 else; then
     echo "./fuzzer [options]"
     echo "       - install"
-    echo "       - --test binary_name input_name"
+    echo "       - [--test] binary_name input_name"
 fi
