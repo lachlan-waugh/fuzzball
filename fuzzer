@@ -11,7 +11,8 @@ if [ $1 = "--install" ]; then
     sudo apt install software-properties-common
     sudo add-apt-repository ppa:deadsnakes/ppa
     sudo apt update
-    sudo apt install python3.8
+    sudo apt install python3.10
+    # python -m pip install -r requirements.txt
 elif [ $1 = "--help" ]; then
     help;
 elif [ $1 = "--test" ]; then

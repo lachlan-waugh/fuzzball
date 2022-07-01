@@ -1,16 +1,12 @@
 from alive_progress import *
-import copy
-import sys
 import random
-from helper import *
+import copy
 
 import xml.etree.ElementTree as ET
 import xml
 import re
 
-# from helper import *
-
-class XMLFuzzer:
+class XMLStrategy:
     def __init__(self, input):
         try:
             print('[*] XML input detected, mutation started')

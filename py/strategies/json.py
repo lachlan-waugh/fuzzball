@@ -1,12 +1,8 @@
 from alive_progress import *
 import random
 import json
-import sys
-import os
 
-from helper import *
-
-class JSONFuzzer:
+class JSONStrategy:
     def __init__(self, input):
         print('[*] JSON Fuzzer started')
         try:

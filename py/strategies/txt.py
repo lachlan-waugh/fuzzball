@@ -1,9 +1,7 @@
+from time import sleep
+from pwn import flat
 import itertools
 import logging
-import sys
-from pwn import flat
-from time import sleep
-from helper import *
 
 def alpha_perm(length):
     alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ\n"
@@ -159,7 +157,7 @@ def txt_fuzzer(binary, inputFile):
         for payload in alphanum_perm(i):
             test_payload(binary, "".join(payload).encode())
 
-class TXTFuzzer:
+class TXTStrategy:
     def __init__(self, input):
         try:
             print('[*] TXT Fuzzer started')

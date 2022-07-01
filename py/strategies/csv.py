@@ -1,9 +1,5 @@
 import random
 import csv
-import sys
-import os
-
-from helper import *
 
 def fields_csv(binary, csv_input, delimiter):
     expected_field_no = -1
@@ -148,7 +144,7 @@ def byte_flip(self):
 
     return payload
 
-class CSVFuzzer:
+class CSVStrategy:
     def __init__(self, input):
         try:
             print('[*] CSV Fuzzer started')

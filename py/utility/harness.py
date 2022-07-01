@@ -3,7 +3,7 @@ from pwn import *
 
 context.log_level = 'ERROR'
 
-class Runner:
+class Harness:
     def __init__(self, binary):
         self._binary = binary
 
