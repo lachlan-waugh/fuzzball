@@ -1,3 +1,4 @@
+from alive_progress import *
 import sys
 import os
 
@@ -12,7 +13,7 @@ from helper import *
 class XMLFuzzer:
     def __init__(self, input):
         try:
-            self._xml = ET.parse(input()).getroot()
+            self._xml = input.getroot()
             self._text = ET.tostring(self._xml)
         except Exception as e:
             print(f'[x] XMLFuzzer __init__ error: {e}')
@@ -182,39 +183,44 @@ class XMLFuzzer:
     def generate_input(self):
         ##########################################################
         ##             Test valid (format) XML data             ##
+        with alive_bar(26, dual_line=True, title='modifying existing nodes') as bar:
+            # Modify the test input to still be in the correct format for XML
+            for child in self._xml:
+                for i in range(0, 6):
+                    yield ET.tostring(self._mutate_node(child, [i])).decode()
+                    bar()
 
-        print('hello')
+                    yield ET.tostring(self._mutate_node(child, range(1, 6))).decode()
+                    bar()
 
-        # Modify the test input to still be in the correct format for XML
-        for child in self._xml:
+        with alive_bar(26, dual_line=True, title='adding new nodes') as bar:
+            # Create some new nodes and add these to the test input
             for i in range(0, 6):
-                yield ET.tostring(self._mutate_node(child, [i])).decode()
+                yield ET.tostring(self._add_node([i])).decode()
+                bar()
 
-            yield ET.tostring(self._mutate_node(child, range(1, 6))).decode()
-
-        print('hello2')
-
-        # Create some new nodes and add these to the test input
-        for i in range(0, 6):
-            yield ET.tostring(self._add_node([i])).decode()
-
-        yield ET.tostring(self._add_node((range(0, 5)))).decode()
+                yield ET.tostring(self._add_node((range(0, 5)))).decode()
+                bar()
 
         ##########################################################
 
         ##########################################################
         ##            Test invalid (format) XML data            ##
+        with alive_bar(26, dual_line=True, title='testing random data') as bar:
+            for i in range(0, 5):
+                yield self._replace_text([i])
+                bar()
 
-        for i in range(0, 5):
-            yield self._replace_text([i])
+                yield self._replace_text(range(0, 5))
+                bar()
 
-        yield self._replace_text(range(0, 5))
+        with alive_bar(26, dual_line=True, title='testing random data') as bar:
+            for i in range(0, 1000):
+                # test random bitflips on the test input
+                yield self._byteflip()
+                bar()
 
-        for i in range(0, 1000):
-            # test random bitflips on the test input
-            yield self._byteflip()
-
-            # test random input (invalid XML)
-            yield get_random_string((i + 1) * 10)
-
+                # test random input (invalid XML)
+                yield get_random_string((i + 1) * 10)
+                bar()
         ###########################################################

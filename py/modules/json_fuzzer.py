@@ -8,7 +8,7 @@ from helper import *
 class JSONFuzzer:
     def __init__(self, input):
         try:
-            self._json = json.load(input)
+            self._json = input
         except Exception as e:
             print(f'[x] {e}')
 
