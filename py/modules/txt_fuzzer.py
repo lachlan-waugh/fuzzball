@@ -162,9 +162,10 @@ def txt_fuzzer(binary, inputFile):
 class TXTFuzzer:
     def __init__(self, input):
         try:
+            print('[*] TXT Fuzzer started')
             self._txt = input.readlines()
         except Exception as e:
             print(f'[x] {e}')
 
     def generate_input(self):
-        yield 1
+        yield b'1'

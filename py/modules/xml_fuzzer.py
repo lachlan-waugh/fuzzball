@@ -1,18 +1,19 @@
 from alive_progress import *
-import sys
-import os
-
-import re
 import copy
-import xml
-import xml.etree.ElementTree as ET
-
-from pwn import *
+import sys
+import random
 from helper import *
+
+import xml.etree.ElementTree as ET
+import xml
+import re
+
+# from helper import *
 
 class XMLFuzzer:
     def __init__(self, input):
         try:
+            print('[*] XML input detected, mutation started')
             self._xml = input.getroot()
             self._text = ET.tostring(self._xml)
         except Exception as e:
@@ -25,7 +26,7 @@ class XMLFuzzer:
             if random.randint(0, 20) == 1:
                 bytes[i] ^= random.getrandbits(7)
 
-        return bytes.decode("ascii")
+        return bytes.decode('ascii')
 
     """
     Adds new nodes to the existing XML test input, which attempt to find
@@ -37,27 +38,27 @@ class XMLFuzzer:
 
         def _link_fstring():
             content = ET.SubElement(child, 'a')
-            content.set("href", "http://" + "%s" * 0x10 +  ".com")
+            content.set('href', f'http://{"%s" * 0x10}.com')
 
         def _link_overflow():
             content = ET.SubElement(child, 'a')
-            content.set("href", "https://" + "A" * 0x1000 + ".com")
+            content.set('href', f'https://{"A" * 0x1000}.com')
 
         def _content_int_overflow():
             content = ET.SubElement(child, 'a')
-            content.set("a", str(2 ** 31))
-            content.set(str(2 ** 31), "b")
+            content.set('a', str(2 ** 31))
+            content.set(str(2 ** 31), 'b')
 
         def _content_int_underflow():
             content = ET.SubElement(child, 'a')
-            content.set("a", str(-2 ** 31))
-            content.set(str(-2 ** 31), "b")
+            content.set('a', str(-2 ** 31))
+            content.set(str(-2 ** 31), 'b')
 
         def _child_name_overflow():
-            child.tag = "A" * 0x1000
+            child.tag = 'A' * 0x1000
 
         def _child_name_fstring():
-            child.tag = "%s" * 0x10
+            child.tag = '%s' * 0x10
 
         switch = {
             0: _link_fstring,
@@ -111,8 +112,8 @@ class XMLFuzzer:
 
         # Add some unexpected info to the node
         def _add_info():
-            child.set("%x" * 100, "B" * 1000)
-            child.set("A" * 1000, "%s" * 100)
+            child.set('%x' * 100, 'B' * 1000)
+            child.set('A' * 1000, '%s' * 100)
 
         # remove all children (grandchildren of root if thats the correct term) from the child
         def _remove_child():
@@ -144,24 +145,19 @@ class XMLFuzzer:
         lines = self._text.decode()
 
         def _delete_open_tag():
-            nonlocal lines
-            lines = re.sub("<[^>]+>", "", lines)
+            return re.sub('<[^>]+>', '', lines)
 
         def _delete_close_tag():
-            nonlocal lines
-            lines = re.sub("</[^>]+>", "", lines)
+            return re.sub('</[^>]+>', '', lines)
 
         def _replace_numbers():
-            nonlocal lines
-            lines = re.sub("\b[0-9]+\b", "1000000000", lines)
+            return re.sub('\b[0-9]+\b', '1000000000', lines)
 
         def _replace_words():
-            nonlocal lines
-            lines = re.sub("\b[a-zA-Z]+\b", "A" * 0x1000, lines)
+            return re.sub('\b[a-zA-Z]+\b', 'A' * 0x1000, lines)
 
         def _replace_links():
-            nonlocal lines
-            lines = re.sub("\"https:[^\"]+.com\"", "%s" * 100, lines)
+            return re.sub('"https:[^"]+.com"', '%s' * 100, lines)
 
         switch = {
             0: _delete_open_tag,
@@ -173,7 +169,7 @@ class XMLFuzzer:
 
         for i in functions:
             try:
-                switch.get(i)()
+                lines = switch.get(i)()
             except Exception as e:
                 print(i)
                 print(e)
@@ -183,7 +179,7 @@ class XMLFuzzer:
     def generate_input(self):
         ##########################################################
         ##             Test valid (format) XML data             ##
-        with alive_bar(26, dual_line=True, title='modifying existing nodes') as bar:
+        with alive_bar(12 * len(self._xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
             # Modify the test input to still be in the correct format for XML
             for child in self._xml:
                 for i in range(0, 6):
@@ -193,7 +189,7 @@ class XMLFuzzer:
                     yield ET.tostring(self._mutate_node(child, range(1, 6))).decode()
                     bar()
 
-        with alive_bar(26, dual_line=True, title='adding new nodes') as bar:
+        with alive_bar(12, dual_line=True, title='adding nodes'.ljust(20)) as bar:
             # Create some new nodes and add these to the test input
             for i in range(0, 6):
                 yield ET.tostring(self._add_node([i])).decode()
@@ -206,7 +202,7 @@ class XMLFuzzer:
 
         ##########################################################
         ##            Test invalid (format) XML data            ##
-        with alive_bar(26, dual_line=True, title='testing random data') as bar:
+        with alive_bar(10, dual_line=True, title='replacing content'.ljust(20)) as bar:
             for i in range(0, 5):
                 yield self._replace_text([i])
                 bar()
@@ -214,12 +210,14 @@ class XMLFuzzer:
                 yield self._replace_text(range(0, 5))
                 bar()
 
-        with alive_bar(26, dual_line=True, title='testing random data') as bar:
+        with alive_bar(1000, dual_line=True, title='testing byteflips'.ljust(20)) as bar:
             for i in range(0, 1000):
                 # test random bitflips on the test input
                 yield self._byteflip()
                 bar()
 
+        with alive_bar(1000, dual_line=True, title='testing random data'.ljust(20)) as bar:
+            for i in range(0, 1000):
                 # test random input (invalid XML)
                 yield get_random_string((i + 1) * 10)
                 bar()

@@ -151,6 +151,7 @@ def byte_flip(self):
 class CSVFuzzer:
     def __init__(self, input):
         try:
+            print('[*] CSV Fuzzer started')
             csvObj = csv.Sniffer().sniff(input.read(1024))
             input.seek(0)
             self._delim = csvObj.delimiter

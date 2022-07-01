@@ -1,9 +1,11 @@
-from alive_progress import *
 from helper import *
-from pwn import *
+from runner import *
 import sys
 import os
-import logging
+
+import xml.etree.ElementTree as ET
+import json
+import csv
 
 sys.path.append('./modules')
 from json_fuzzer import JSONFuzzer
@@ -28,10 +30,10 @@ class Fuzzer:
         else:
             print(f'[*] binary file: {os.path.basename(self._binary_file)}\n[*] sample input: {os.path.basename(self._sample_input)}')
 
-        self._runner = Runner()
+        self._runner = Runner(self._binary_file)
 
-    def get_fuzzer(file):
-        with open(file) as sample_input:
+    def get_fuzzer(self):
+        with open(self._sample_input) as sample_input:
             try:
                 sample_input.seek(0)
                 return JSONFuzzer(json.load(sample_input))
@@ -48,22 +50,23 @@ class Fuzzer:
 
             try:
                 # file.seek(0)
-                return XMLFuzzer(ET.parse(sample_input))
+                return XMLFuzzer(ET.parse(self._sample_input))
             except Exception:
                 pass
 
             return TXTFuzzer(sample_input)
 
-    def fuzz():
+    def fuzz(self):
         # first test some basic input, that doesn't rely on the sample
-        run(simple_fuzz())
+        # self._runner.run(simple_fuzz())
 
         # next, mutate the sample input
-        run(get_fuzzer(sample_input).generate_input())
+        self._runner.run(self.get_fuzzer().generate_input())
 
         # busy wait until the workers finish
         while len(MP.active_children()) > 0:
             sleep(1)
 
 if __name__ == "__main__":
-    Fuzzer().fuzz()
+    fuzzer = Fuzzer()
+    fuzzer.fuzz()

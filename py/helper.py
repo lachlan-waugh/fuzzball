@@ -1,17 +1,14 @@
-from pwn import *
-import xml.etree.ElementTree as ET
-import multiprocessing as MP
-import json
-import csv
+import random
+import string
 
 def simple_fuzz():
     yield b''
 
+    # for _ in range(100):
+
 def get_random_string(length):
-    return ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase) for i in range(length))
+    return ''.join(random.choice(string.ascii_lowercase + string.ascii_uppercase) for _ in range(length))
 
 # TODO: fix
 def get_random_format_string(size):
     return ''.join(random.choice(['%x', '%c', '%d', '%p', '%s']) for _ in range(size))
-
-# 
