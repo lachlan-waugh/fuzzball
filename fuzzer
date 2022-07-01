@@ -12,10 +12,10 @@ if [ $1 = "--install" ]; then
     sudo add-apt-repository ppa:deadsnakes/ppa
     sudo apt update
     sudo apt install python3.8
-elif [ $1 = "--test" ]; then
-    # test a number of different binaries at once
 elif [ $1 = "--help" ]; then
     help;
+elif [ $1 = "--test" ]; then
+    # test a number of different binaries at once
 elif [ $# = 2 ]; then
     (cd /py && exec python3 -m py/fuzzer.py "$@")
 else; then
