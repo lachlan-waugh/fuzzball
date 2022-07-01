@@ -147,13 +147,13 @@ def byte_flip(self):
 class CSVStrategy:
     def __init__(self, input):
         try:
-            print('[*] CSV Fuzzer started')
+            print('[*] CSV input detected, mutation started')
             csvObj = csv.Sniffer().sniff(input.read(1024))
             input.seek(0)
             self._delim = csvObj.delimiter
             self._csv = [row for row in csv.reader(input, delimiter=self._delim)]
         except Exception as e:
-            print(e)
+            print(f'[x] CSVStrategy.__init__ error: {e}')
 
     def generate_input(self):
         csv_input, delimiter = read_csv(inputFile)

@@ -4,11 +4,11 @@ import json
 
 class JSONStrategy:
     def __init__(self, input):
-        print('[*] JSON Fuzzer started')
+        print('[*] JSON input detected, mutation started')
         try:
             self._json = input
         except Exception as e:
-            print(f'[x] ERROR: JSONFuzzer init {e}')
+            print(f'[x] JSONStrategy.__init__ error: {e}')
 
     def deep_nested_json(self, dictionary, length):
         if length == 0:

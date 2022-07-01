@@ -1,3 +1,3 @@
-from . import utility
 from . import strategies
+from . import utility
 from .fuzzer import Fuzzer

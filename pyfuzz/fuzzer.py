@@ -22,7 +22,3 @@ class Fuzzer:
         # busy wait until the workers finish
         while len(MP.active_children()) > 0:
             sleep(1)
-
-if __name__ == "__main__":
-    fuzzer = Fuzzer()
-    fuzzer.fuzz()

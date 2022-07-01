@@ -13,7 +13,7 @@ class XMLStrategy:
             self._xml = input.getroot()
             self._text = ET.tostring(self._xml)
         except Exception as e:
-            print(f'[x] XMLFuzzer __init__ error: {e}')
+            print(f'[x] XMLStrategy.__init__ error: {e}')
 
     def _byteflip(self):
         bytes = bytearray(self._text.decode(), 'UTF-8')

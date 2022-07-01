@@ -36,7 +36,7 @@ class Bootstrap:
             except csv.Error:
                 pass
 
-        return TXTStrategy(sample_input)
+            return TXTStrategy(sample_input)
 
     def common(self):
         return CommonStrategy()
