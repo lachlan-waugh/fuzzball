@@ -10,6 +10,60 @@ class JSONStrategy:
         except Exception as e:
             print(f'[x] JSONStrategy.__init__ error: {e}')
 
+    def generate_input(self):
+        ##########################################################
+        ##             Test valid (format) JSON data            ##        
+        with alive_bar(2, dual_line=True, title='nullifying entries'.ljust(20)) as bar:
+            yield self.nullify_json()            # nullify fields - zero and empty strings
+            bar()
+
+            yield self.all_null()
+            bar()
+
+        with alive_bar(2, dual_line=True, title='changing # fields'.ljust(20)) as bar:
+            yield self.add_fields()
+            bar()
+
+            yield self.remove_fields()
+            bar()
+
+        with alive_bar(2, dual_line=True, title='swapping key/vals'.ljust(20)) as bar:
+            yield self.swap_json_fields()        # swap fields
+            bar()
+
+            yield self.swap_json_values()        # swap values
+            bar()
+
+        # with alive_bar(2, dual_line=True, title='invalid values'.ljust(20)) as bar:
+        #     yield self.wrong_type_values()  # swapping expected data types - works for high level and sub dictionaries
+        #     bar()
+
+        #     yield self.random_types()            # random type assignment
+        #     bar()
+
+        # with alive_bar(4, dual_line=True, title='swapping values/fields'.ljust(20)) as bar:
+        #     yield self.format_string()      # format strings
+        #     bar()
+
+        #     yield self.overflow_strings()   # overflow strings
+        #     bar()
+
+        #     yield self.integer_overflow_keys()   # 
+        #     bar()
+
+        #     yield self.integer_overflow_values() # 
+        #     bar()
+
+        # with alive_bar(100, dual_line=True, title='invalid json'.ljust(20)) as bar:
+        #     for _ in range(100):
+        #         yield self.invalid_json()    # invalid json
+        #         bar()
+
+        # with alive_bar(100, dual_line=True, title='random json'.ljust(20)) as bar:
+        #     for _ in range(100):
+        #         yield self.random_json()     # lots of random fields and things
+        #         bar()
+
     def deep_nested_json(self, dictionary, length):
         if length == 0:
             return random.randint(0, 1024)
@@ -160,57 +214,3 @@ class JSONStrategy:
                 continue
 
         return payload
-
-    def generate_input(self):
-        ##########################################################
-        ##             Test valid (format) JSON data            ##        
-        with alive_bar(2, dual_line=True, title='nullifying entries'.ljust(20)) as bar:
-            yield self.nullify_json()            # nullify fields - zero and empty strings
-            bar()
-
-            yield self.all_null()
-            bar()
-
-        with alive_bar(2, dual_line=True, title='changing # fields'.ljust(20)) as bar:
-            yield self.add_fields()
-            bar()
-
-            yield self.remove_fields()
-            bar()
-
-        with alive_bar(2, dual_line=True, title='swapping key/vals'.ljust(20)) as bar:
-            yield self.swap_json_fields()        # swap fields
-            bar()
-
-            yield self.swap_json_values()        # swap values
-            bar()
-
-        # with alive_bar(2, dual_line=True, title='invalid values'.ljust(20)) as bar:
-        #     yield self.wrong_type_values()  # swapping expected data types - works for high level and sub dictionaries
-        #     bar()
-
-        #     yield self.random_types()            # random type assignment
-        #     bar()
-
-        # with alive_bar(4, dual_line=True, title='swapping values/fields'.ljust(20)) as bar:
-        #     yield self.format_string()      # format strings
-        #     bar()
-
-        #     yield self.overflow_strings()   # overflow strings
-        #     bar()
-
-        #     yield self.integer_overflow_keys()   # 
-        #     bar()
-
-        #     yield self.integer_overflow_values() # 
-        #     bar()
-
-        # with alive_bar(100, dual_line=True, title='invalid json'.ljust(20)) as bar:
-        #     for _ in range(100):
-        #         yield self.invalid_json()    # invalid json
-        #         bar()
-
-        # with alive_bar(100, dual_line=True, title='random json'.ljust(20)) as bar:
-        #     for _ in range(100):
-        #         yield self.random_json()     # lots of random fields and things
-        #         bar()

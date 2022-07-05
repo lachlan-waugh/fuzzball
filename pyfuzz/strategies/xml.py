@@ -15,6 +15,53 @@ class XMLStrategy:
         except Exception as e:
             print(f'[x] XMLStrategy.__init__ error: {e}')
 
+    def generate_input(self):
+        ##########################################################
+        ##             Test valid (format) XML data             ##
+        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
+            # Modify the test input to still be in the correct format for XML
+            for child in self.xml:
+                for i in range(0, 6):
+                    yield ET.tostring(self.mutate_node(child, [i])).decode()
+                    bar()
+
+                    yield ET.tostring(self.mutate_node(child, range(1, 6))).decode()
+                    bar()
+
+        with alive_bar(12, dual_line=True, title='adding nodes'.ljust(20)) as bar:
+            # Create some new nodes and add these to the test input
+            for i in range(0, 6):
+                yield ET.tostring(self.add_node([i])).decode()
+                bar()
+
+                yield ET.tostring(self.add_node((range(0, 5)))).decode()
+                bar()
+
+        ##########################################################
+
+        ##########################################################
+        ##            Test invalid (format) XML data            ##
+        with alive_bar(10, dual_line=True, title='replacing content'.ljust(20)) as bar:
+            for i in range(0, 5):
+                yield self.replace_text([i])
+                bar()
+
+                yield self.replace_text(range(0, 5))
+                bar()
+
+        with alive_bar(1000, dual_line=True, title='testing byteflips'.ljust(20)) as bar:
+            for i in range(0, 1000):
+                # test random bitflips on the test input
+                yield self.byteflip()
+                bar()
+
+        with alive_bar(1000, dual_line=True, title='testing random data'.ljust(20)) as bar:
+            for i in range(0, 1000):
+                # test random input (invalid XML)
+                yield get_random_string((i + 1) * 10)
+                bar()
+        ###########################################################
+
     def byteflip(self):
         bytes = bytearray(self.text.decode(), 'UTF-8')
 
@@ -168,50 +215,3 @@ class XMLStrategy:
                 print(f'{i}: {e}')
 
         return lines
-
-    def generate_input(self):
-        ##########################################################
-        ##             Test valid (format) XML data             ##
-        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
-            # Modify the test input to still be in the correct format for XML
-            for child in self.xml:
-                for i in range(0, 6):
-                    yield ET.tostring(self.mutate_node(child, [i])).decode()
-                    bar()
-
-                    yield ET.tostring(self.mutate_node(child, range(1, 6))).decode()
-                    bar()
-
-        with alive_bar(12, dual_line=True, title='adding nodes'.ljust(20)) as bar:
-            # Create some new nodes and add these to the test input
-            for i in range(0, 6):
-                yield ET.tostring(self.add_node([i])).decode()
-                bar()
-
-                yield ET.tostring(self.add_node((range(0, 5)))).decode()
-                bar()
-
-        ##########################################################
-
-        ##########################################################
-        ##            Test invalid (format) XML data            ##
-        with alive_bar(10, dual_line=True, title='replacing content'.ljust(20)) as bar:
-            for i in range(0, 5):
-                yield self.replace_text([i])
-                bar()
-
-                yield self.replace_text(range(0, 5))
-                bar()
-
-        with alive_bar(1000, dual_line=True, title='testing byteflips'.ljust(20)) as bar:
-            for i in range(0, 1000):
-                # test random bitflips on the test input
-                yield self.byteflip()
-                bar()
-
-        with alive_bar(1000, dual_line=True, title='testing random data'.ljust(20)) as bar:
-            for i in range(0, 1000):
-                # test random input (invalid XML)
-                yield get_random_string((i + 1) * 10)
-                bar()
-        ###########################################################

@@ -36,46 +36,6 @@ class TXTStrategy:
         except Exception as e:
             print(f'[x] TXTStrategy.__init__ error: {e}')
 
-    # Mutate numbers only (SLOW FINE GRAIN)
-    def mutation_based(self):
-        perm_inputs = []
-        for line in self.txt:
-            perm_lines = []
-            for perm_line in defined_num_perm(line, len(line), -100, 100, 1):
-                if isinstance(perm_line, int):
-                    perm_lines.append(f'{perm_line}\n'.encode())
-                else:
-                    perm_lines.append(line)
-                    break
-            perm_inputs.append(perm_lines)
-
-        return list(itertools.product(*perm_inputs)) if (len(perm_inputs) > 1) else perm_inputs[0]
-
-    def mutate_numbers(self):
-        # Mutate numbers only (FAST WIDE SWEEP)
-        perm_inputs = []
-        for line in self.txt:
-            perm_lines = []
-            for perm_line in defined_num_perm(line, len(line), -5000, 5000, 10):
-                if isinstance(perm_line, int):
-                    perm_lines.append(f'{perm_line}\n')
-                else:
-                    perm_lines.append(line)
-                    break
-            perm_inputs.append(perm_lines)
-
-        return list(itertools.product(*perm_inputs)) if (len(perm_inputs) > 1) else perm_inputs[0]
-
-    def mutate_everything(self):
-        perm_inputs = []
-        for line in self.txt:
-            perm_lines = []
-            for perm_line in defined_perm(line, len(line)):
-                perm_lines.append(f'{perm_line}\n')
-            perm_inputs.append(perm_lines)
-
-        return list(itertools.product(*perm_inputs)) if (len(perm_inputs) > 1) else perm_inputs[0]
-
     def generate_input(self):
         with alive_bar(31, dual_line=True, title='integer overflow'.ljust(20)) as bar:
             for i in range(31):
@@ -154,3 +114,43 @@ class TXTStrategy:
             for i in range(4):
                 for payload in alphanum_perm(i):
                     yield f'{payload}'.encode()
+
+    # Mutate numbers only (SLOW FINE GRAIN)
+    def mutation_based(self):
+        perm_inputs = []
+        for line in self.txt:
+            perm_lines = []
+            for perm_line in defined_num_perm(line, len(line), -100, 100, 1):
+                if isinstance(perm_line, int):
+                    perm_lines.append(f'{perm_line}\n'.encode())
+                else:
+                    perm_lines.append(line)
+                    break
+            perm_inputs.append(perm_lines)
+
+        return list(itertools.product(*perm_inputs)) if (len(perm_inputs) > 1) else perm_inputs[0]
+
+    def mutate_numbers(self):
+        # Mutate numbers only (FAST WIDE SWEEP)
+        perm_inputs = []
+        for line in self.txt:
+            perm_lines = []
+            for perm_line in defined_num_perm(line, len(line), -5000, 5000, 10):
+                if isinstance(perm_line, int):
+                    perm_lines.append(f'{perm_line}\n')
+                else:
+                    perm_lines.append(line)
+                    break
+            perm_inputs.append(perm_lines)
+
+        return list(itertools.product(*perm_inputs)) if (len(perm_inputs) > 1) else perm_inputs[0]
+
+    def mutate_everything(self):
+        perm_inputs = []
+        for line in self.txt:
+            perm_lines = []
+            for perm_line in defined_perm(line, len(line)):
+                perm_lines.append(f'{perm_line}\n')
+            perm_inputs.append(perm_lines)
+
+        return list(itertools.product(*perm_inputs)) if (len(perm_inputs) > 1) else perm_inputs[0]
