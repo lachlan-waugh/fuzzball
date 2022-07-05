@@ -95,41 +95,27 @@ class TXTStrategy:
                 bar()
                 yield payload
 
-        with alive_bar(10, dual_line=True, title='expand lines'.ljust(20)) as bar:
+        with alive_bar(30, dual_line=True, title='expand lines'.ljust(20)) as bar:
             for i in range(1, 11):
-                payload = b''
-                for line in self.txt:
-                    payload += f'{line[:-1] * i}\n'.encode()
-                
                 bar()
-                yield payload
+                yield b''.join(f'{line[:-1] * i}\n'.encode() for line in self.txt)
 
-        with alive_bar(1, dual_line=True, title='negating numbers'.ljust(20)) as bar:
-            payload = b''
-            for line in self.txt:
                 try:
-                    payload += f'{-int(line[:-1])}\n'.encode()
+                    yield b''.join(f'{-int(line[:-1])}\n'.encode() for line in self.txt)
                 except ValueError:
-                    payload += f'{line[:-1]}\n'.encode()
+                    yield b''.join(f'{line[:-1]}\n'.encode() for line in self.txt)
+                bar()
 
-            bar()
-            yield payload
-
-        with alive_bar(1, dual_line=True, title='negate & expand'.ljust(20)) as bar:
-            payload = b''
-            for line in self.txt:
                 try:
-                    payload += f'{-int(line[:-1])}\n'.encode()
+                    yield b''.join(f'{-int(line[:-1]) * (2 ** (i + 2))}\n'.encode() for line in self.txt)
                 except ValueError:
-                    payload += f'{line[:-1] * 512}\n'.encode()
-            
-            bar()
-            yield payload
+                    yield b''.join(f'{line[:-1] * (2 ** (i + 2))}\n'.encode() for line in self.txt)
+                bar()
 
         with alive_bar(99, dual_line=True, title='format strings'.ljust(20)) as bar:
             for i in range(1, 100):
                 payload = f'%{i}$s %{i}$x %{i}$p %{i}$c\n'.encode() * len(self.txt)
-                
+
                 bar()
                 yield payload
 
@@ -151,19 +137,19 @@ class TXTStrategy:
             for payload in payloads:
                 yield f'{payload}'.encode()
 
-        with alive_bar(5, dual_line=True, title='numerical perms'.ljust(20)) as bar:
-            # Basic Numeric Permutation of various lengths
-            for i in range(5):
-                for payload in num_perm(i):
-                    yield f'{payload}'.encode()
+        # with alive_bar(5, dual_line=True, title='numerical perms'.ljust(20)) as bar:
+        #     # Basic Numeric Permutation of various lengths
+        #     for i in range(5):
+        #         for payload in num_perm(i):
+        #             yield f'{payload}'.encode()
 
-        with alive_bar(4, dual_line=True, title='alphabetical perms'.ljust(20)) as bar:
-            # Basic Alphabet Permutation of various lengths
-            for i in range(4):
-                for payload in alpha_perm(i):
-                    yield f'{payload}'.encode()
+        # with alive_bar(4, dual_line=True, title='alphabetical perms'.ljust(20)) as bar:
+        #     # Basic Alphabet Permutation of various lengths
+        #     for i in range(4):
+        #         for payload in alpha_perm(i):
+        #             yield f'{payload}'.encode()
 
-        with alive_bar(4, dual_line=True, title='alphanumeric perms'.ljust(20)) as bar:
+        # with alive_bar(4, dual_line=True, title='alphanumeric perms'.ljust(20)) as bar:
             # Basic Alphanumeric Permuation of various lengths
             for i in range(4):
                 for payload in alphanum_perm(i):

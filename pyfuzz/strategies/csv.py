@@ -22,7 +22,7 @@ def fields_csv(binary, csv_input, delimiter):
                     expected_field_no = x
                 break
             error.append(delimiter.join(csv_input[x]) + "\n")
-        test_payload(binary, "".join(error))
+        test_payload(binary, b''.join(error))
     return expected_field_no
 
 # Check if a enough CSV lines will crash the program
@@ -37,25 +37,25 @@ def lines_csv(binary, csv_input, delimiter):
                 test_payload(binary, delimiter.join(csv_input[len(csv_input) - 1]))
                 error.append(delimiter.join(csv_input[len(csv_input) - 1]) + "\n")
 
-        test_payload(binary, "".join(error))
+        test_payload(binary, b''.join(error))
 
 # remove all delimiters make file invalid
 def remove_delimiters(binary, csv_input, delimiter):
-    payload = ""
+    payload = b''
     for l in range(0, len(csv_input)):
-        payload += "".join(csv_input[l]) + "\n"
+        payload += b''.join(csv_input[l]) + "\n"
     test_payload(binary, payload)
 
 def change_delimiters(binary, csv_input):
     for x in [" ", ".", ",", "\t", "\n", "|", "/", "\\", ":", ";"]:
-        payload = ""
+        payload = b''
         for l in range(0, len(csv_input)):
             payload += x.join(csv_input[l]) + "\n"
         test_payload(binary, payload)
 
 def overflow_fields(binary, csv_input, delimiter):
     for x in range(32, 1000, 32):
-        payload = ""
+        payload = b''
         for l in range(0, len(csv_input)):
             if l == 1 and random.randrange(0, 1) == 1:
                 payload += delimiter.join(csv_input[0]) + "\n"
@@ -81,7 +81,7 @@ def format_string(binary, csv_input, delimiter):
         test_payload(binary, payload)
 
 def change_header(binary, csv_input, delimiter):
-    payload = ""
+    payload = b''
     for l in range(0, len(csv_input)):
         for _ in range(0, len(csv_input[l])):
             payload += get_random_string(25) + delimiter
@@ -91,7 +91,7 @@ def change_header(binary, csv_input, delimiter):
 # overflows
 def overflow_numbers(binary, csv_input, delimiter):
     # zero
-    payload = ""
+    payload = b''
     payload = delimiter.join(csv_input[0]) + "\n"
     firstline = len(payload)
     for l in range(1, len(csv_input)):
@@ -129,7 +129,7 @@ def overflow_numbers(binary, csv_input, delimiter):
     test_payload(binary, payload[firstline:])
 
 def byte_flip(self):
-    payload = ""
+    payload = b''
     freq = random.randrange(1, 20)
     
     for l in range(0, len(self.csv)):
