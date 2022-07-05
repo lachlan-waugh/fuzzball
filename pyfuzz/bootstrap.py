@@ -9,12 +9,23 @@ from .strategies.txt import TXTStrategy
 from .strategies.common import CommonStrategy
 
 """
-Used to determine the type of sample input provided for smarter fuzzing
+# Returns the relevant strategies to be used for the fuzzing logic
 """
 class Bootstrap:
     def __init__(self, sample_input):
         self._sample_input = sample_input
 
+    """
+    # used for the initial, basic fuzzing logic. 
+    # Generates some input (that isn't based on the sample) to test
+    """
+    def common(self):
+        return CommonStrategy()
+
+    """
+    # Used to determine the type of sample input provided for smarter fuzzing
+    # takes in the sample input, and returns the strategies to mutate that input
+    """
     def bootstrap(self):
         try:
             return XMLStrategy(ET.parse(self._sample_input))
@@ -36,7 +47,5 @@ class Bootstrap:
             except csv.Error:
                 pass
 
+            sample_input.seek(0)
             return TXTStrategy(sample_input)
-
-    def common(self):
-        return CommonStrategy()

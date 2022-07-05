@@ -3,6 +3,11 @@ from pwn import *
 
 context.log_level = 'ERROR'
 
+"""
+# Used to communicate with the target program, handles
+# * sending data
+# * determining the type of the crash
+"""
 class Harness:
     def __init__(self, binary):
         self.binary = binary

@@ -12,8 +12,8 @@ class Fuzzer:
         self._harness = Harness(self._binary_file)
         self._strategies = Bootstrap(self._sample_input)
 
-    def fuzz(self):
-        # first test some basic input, that doesn't rely on the sample
+    def run(self):
+        # first generate some input, that doesn't rely on the sample
         self._harness.run(self._strategies.common().generate_input())
 
         # next, mutate the sample input
