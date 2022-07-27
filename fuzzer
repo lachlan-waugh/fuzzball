@@ -18,7 +18,7 @@ elif [ $1 = "--help" ]; then
 elif [ $1 = "--test" ]; then
     # test a number of different binaries at once
 elif [ $# = 2 ]; then
-    python3 -m pyfuzz "$@"
+    python3 -m fuzzball "$@"
 else; then
     help;
 fi

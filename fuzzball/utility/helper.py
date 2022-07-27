@@ -5,7 +5,7 @@ import os
 
 def get_arguments():
     if len(sys.argv) != 3:
-        sys.exit("Usage: python3 -m pyfuzz [binaryName] [sampleInput]")
+        sys.exit("Usage: python3 -m fuzzball [binaryName] [sampleInput]")
 
     binary, sample = sys.argv[1:3]
     if not (os.path.isfile(binary)):
