@@ -13,7 +13,6 @@ class Harness:
         self.binary = binary
 
     def run(self, inputs):
-        # first test some basic input, that doesn't rely on the sample
         for test_input in inputs:
             try:
                 self.test_payload(test_input)

@@ -4,29 +4,6 @@ from pwn import *
 import itertools
 import logging
 
-def alpha_perm(length):
-    alphabet = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n'
-    return itertools.combinations_with_replacement(alphabet, length)
-
-def num_perm(length):
-    alphabet = b'0123456789\n'
-    return itertools.combinations_with_replacement(alphabet, length)
-
-def alphanum_perm(length):
-    alphabet = b'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n'
-    return itertools.combinations_with_replacement(alphabet, length)
-
-def defined_perm(alphabet, length):
-    # do not include trailing \n
-    return itertools.combinations_with_replacement(alphabet[:-1], length - 1)
-
-def defined_num_perm(alphabet, length, start, stop, speed):
-    try:
-        int(alphabet[:-1])
-    except ValueError:
-        return alphabet[:-1]
-    return range(start, stop, speed)
-
 class TXTStrategy:
     def __init__(self, input):
         try:
@@ -154,3 +131,26 @@ class TXTStrategy:
             perm_inputs.append(perm_lines)
 
         return list(itertools.product(*perm_inputs)) if (len(perm_inputs) > 1) else perm_inputs[0]
+
+def alpha_perm(length):
+    alphabet = b'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz\n'
+    return itertools.combinations_with_replacement(alphabet, length)
+
+def num_perm(length):
+    alphabet = b'0123456789\n'
+    return itertools.combinations_with_replacement(alphabet, length)
+
+def alphanum_perm(length):
+    alphabet = b'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789\n'
+    return itertools.combinations_with_replacement(alphabet, length)
+
+def defined_perm(alphabet, length):
+    # do not include trailing \n
+    return itertools.combinations_with_replacement(alphabet[:-1], length - 1)
+
+def defined_num_perm(alphabet, length, start, stop, speed):
+    try:
+        int(alphabet[:-1])
+    except ValueError:
+        return alphabet[:-1]
+    return range(start, stop, speed)
