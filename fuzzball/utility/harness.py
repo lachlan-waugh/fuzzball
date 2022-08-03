@@ -20,7 +20,6 @@ class Harness:
                 print(f'[x] Harness.run error: {e}')
 
     def test_payload(self, payload):
-        # print(f'[+] "{type(payload)}" "{payload}"')
         if not isinstance(payload, str):
             try:
                 payload = payload.decode()
