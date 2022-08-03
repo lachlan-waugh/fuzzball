@@ -1,4 +1,3 @@
-from alive_progress import *
 import random
 import json
 
@@ -12,57 +11,36 @@ class JSONStrategy:
 
     def generate_input(self):
         ##########################################################
-        ##             Test valid (format) JSON data            ##        
-        with alive_bar(2, dual_line=True, title='nullifying entries'.ljust(20)) as bar:
-            yield self.nullify_json()            # nullify fields - zero and empty strings
-            bar()
+        ##             Test valid (format) JSON data            ##  
+        # 2, 'nullifying entries'      
+        yield self.nullify_json()            # nullify fields - zero and empty strings
+        yield self.all_null()
 
-            yield self.all_null()
-            bar()
+        # 2, 'changing # fields'
+        yield self.add_fields()
+        yield self.remove_fields()
 
-        with alive_bar(2, dual_line=True, title='changing # fields'.ljust(20)) as bar:
-            yield self.add_fields()
-            bar()
+        # 2, 'swapping key/vals'
+        yield self.swap_json_fields()        # swap fields
+        yield self.swap_json_values()        # swap values
 
-            yield self.remove_fields()
-            bar()
+        # 2, 'invalid values'
+        yield self.wrong_type_values()  # swapping expected data types - works for high level and sub dictionaries
+        yield self.random_types()            # random type assignment
 
-        with alive_bar(2, dual_line=True, title='swapping key/vals'.ljust(20)) as bar:
-            yield self.swap_json_fields()        # swap fields
-            bar()
+        # 4, 'swapping values/fields'
+        yield self.format_string()      # format strings
+        yield self.overflow_strings()   # overflow strings
+        yield self.integer_overflow_keys()   # 
+        yield self.integer_overflow_values() # 
 
-            yield self.swap_json_values()        # swap values
-            bar()
+        # 100, 'invalid json'
+        for _ in range(100):
+            yield self.invalid_json()    # invalid json
 
-        # with alive_bar(2, dual_line=True, title='invalid values'.ljust(20)) as bar:
-        #     yield self.wrong_type_values()  # swapping expected data types - works for high level and sub dictionaries
-        #     bar()
-
-        #     yield self.random_types()            # random type assignment
-        #     bar()
-
-        # with alive_bar(4, dual_line=True, title='swapping values/fields'.ljust(20)) as bar:
-        #     yield self.format_string()      # format strings
-        #     bar()
-
-        #     yield self.overflow_strings()   # overflow strings
-        #     bar()
-
-        #     yield self.integer_overflow_keys()   # 
-        #     bar()
-
-        #     yield self.integer_overflow_values() # 
-        #     bar()
-
-        # with alive_bar(100, dual_line=True, title='invalid json'.ljust(20)) as bar:
-        #     for _ in range(100):
-        #         yield self.invalid_json()    # invalid json
-        #         bar()
-
-        # with alive_bar(100, dual_line=True, title='random json'.ljust(20)) as bar:
-        #     for _ in range(100):
-        #         yield self.random_json()     # lots of random fields and things
-        #         bar()
+        # 100, 'random json'
+        for _ in range(100):
+            yield self.random_json()     # lots of random fields and things
 
     def deep_nested_json(self, dictionary, length):
         if length == 0:
@@ -83,10 +61,8 @@ class JSONStrategy:
 
         return json.dumps(payload).encode('UTF-8')
 
-    # ASDASD
     def nullify_json(self):
         payload = self.json.copy()
-        # set inputs to 0 equivelants
         for key in payload.keys():
             try:
                 payload[key] += 1
@@ -166,8 +142,6 @@ class JSONStrategy:
                 payload[key] = actions[choice]
 
         return payload
-
-    # ASDASDASASDS
 
     def format_string(self):
         payload = self.json.copy()

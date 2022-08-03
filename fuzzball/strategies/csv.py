@@ -1,4 +1,3 @@
-from alive_progress import *
 import random
 import csv
 
@@ -13,26 +12,29 @@ class CSVStrategy:
             print(f'[x] CSVStrategy.__init__ error: {e}')
 
     def generate_input(self):
-        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying delimiter'.ljust(20)) as bar:
-            yield remove_delimiters()   # invalid csv - remove all self.delimiters
-            yield change_delimiters()   # change delimiters
+        # 12 * len(self.csv), 'modifying delimiters'
+        yield remove_delimiters()   # invalid csv - remove all self.delimiters
+        yield change_delimiters()   # change delimiters
         
-        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
-            yield lines_csv()   # check number of lines
-            yield fields_csv()  # check fields - can return number of expected fields
-        
-        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
-            yield overflow_fields() # overflowing fields with string
-        
-        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
-            yield format_string()   # string format
-        
-        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
-            yield change_header()   # change first line
+        # 12 * len(self.csv), 'modify # of lines'
+        yield lines_csv()   # check number of lines
 
-        with alive_bar(12 * len(self.xml), dual_line=True, title='modifying nodes'.ljust(20)) as bar:
-            yield overflow_numbers()# overflow intergers
+        # 12 * len(self.csv), 'modify the fields'
+        yield fields_csv()  # check fields - can return number of expected fields
+        
+        # 12 * len(self.csv), 'overflowing fields'
+        yield overflow_fields() # overflowing fields with string
+        
+        # 12 * len(self.csv), 'format strings'
+        yield format_string()   # string format
+        
+        # 12 * len(self.csv), 'modifying headers'
+        yield change_header()   # change first line
 
+        # 12 * len(self.csv), 'overflowing numbers'
+        yield overflow_numbers()# overflow intergers
+
+        # 12 * len(self.csv), 'random bit flips'
         for _ in range(0, 20):  # bit flipping
             yield byte_flip()
 
