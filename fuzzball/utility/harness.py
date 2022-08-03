@@ -15,7 +15,7 @@ class Harness:
 
     def run(self, inputs):
         for test_input in inputs:
-            with alive_bar(len(inputs), dual_line=True, title='modifying content'.ljust(20)) as bar:
+            with alive_bar(len(test_input), dual_line=True, title='modifying content'.ljust(20)) as bar:
                 try:
                     self.test_payload(test_input)
                 except Exception as e:
