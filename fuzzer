@@ -20,12 +20,14 @@ if [ $1 = "--install" ]; then
     install;
 elif [ $1 = "--help" ]; then
     help;
-elif [ $1 = "--test" ]; then
+elif [ $1 = "--test" ] && [ -d $2 ]; then
+    [ -d $2 ] && echo "asd"
     for sample in $2/*.txt; do
         binary=$(echo $sample | sed 's/\.txt//i')
+        echo $binary $sample
         python3 -m fuzzball $binary $sample;
     done
-elif [ $# = 2 ]; then
+elif [ $# = 2 ] && ! [[ $1 =~ ^-- ]]; then
     python3 -m fuzzball "$@";
 else
     help;

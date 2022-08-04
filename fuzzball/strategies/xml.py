@@ -1,15 +1,16 @@
 import random
 import copy
-
+import re
 import xml.etree.ElementTree as ET
 import xml
-import re
+
+from ..modules.helper import get_random_string, get_random_format_string
 
 class XMLStrategy:
-    def __init__(self, input):
+    def __init__(self, sample_input):
         try:
             print('[*] XML input detected, mutation started')
-            self.xml = input.getroot()
+            self.xml = sample_input.getroot()
             self.text = ET.tostring(self.xml)
         except Exception as e:
             print(f'[x] XMLStrategy.__init__ error: {e}')

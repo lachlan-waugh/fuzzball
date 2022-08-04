@@ -3,12 +3,14 @@ from pwn import *
 import itertools
 import logging
 
+from ..modules.helper import get_random_string, get_random_format_string
+
 class TXTStrategy:
-    def __init__(self, input):
+    def __init__(self, sample_input):
         try:
             print('[*] TXT input detected, mutation started')
-            input.seek(0)
-            self.txt = input.readlines()
+            sample_input.seek(0)
+            self.txt = sample_input.readlines()
         except Exception as e:
             print(f'[x] TXTStrategy.__init__ error: {e}')
 
