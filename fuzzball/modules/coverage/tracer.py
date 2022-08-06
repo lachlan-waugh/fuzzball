@@ -1,2 +1,2 @@
-class Ptrace:
+class Tracer:
     def __init__(self):
