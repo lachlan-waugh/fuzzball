@@ -34,6 +34,6 @@ class Bootstrap:
     """
     def bootstrap(self):
         file_type = magic.from_file(self.sample_input, mime=True).split('/')[1]
-        
+
         with open(self.sample_input) as sample_input
             strategy = self.types.get(file_type, CommonStrategy)(sample_input)
