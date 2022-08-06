@@ -21,6 +21,7 @@ class Harness:
                     self.test_payload(test_input)
                 except Exception as e:
                     print(f'[x] Harness.run error: {e}')
+                bar()
 
     def test_payload(self, payload):
         if not isinstance(payload, str):
