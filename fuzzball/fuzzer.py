@@ -9,17 +9,17 @@ from .coverage.coverage import *
 """
 class Fuzzer:
     def __init__(self):
-        self._binary_file, self._sample_input = get_arguments()
-        self._harness = Harness(self._binary_file)
-        self._strategies = Bootstrap(self._sample_input)
-        self._coverage = Coverage()
+        self.binary_file, self._sample_input = get_arguments()
+        self.harness = Harness(self._binary_file)
+        self.strategies = Bootstrap(self._sample_input)
+        self.coverage = Coverage()
 
     def run(self):
         # first generate some input, that doesn't rely on the sample
-        self._harness.run(self._strategies.common().generate_input())
+        self.harness.run(self.strategies.common().generate_input())
 
         # next, mutate the sample input
-        self._harness.run(self._strategies.bootstrap().generate_input())
+        self.harness.run(self.strategies.bootstrap().generate_input())
 
         # busy wait until the workers finish
         while len(MP.active_children()) > 0:
