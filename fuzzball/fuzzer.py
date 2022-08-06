@@ -2,6 +2,7 @@ from .modules.helper import *
 from .modules.harness import *
 from .modules.bootstrap import *
 from .coverage.coverage import *
+
 """
 > $1: binary name
 > $2: sampleinput

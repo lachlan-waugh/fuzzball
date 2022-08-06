@@ -4,7 +4,8 @@ help() {
     echo "./fuzzer [options]"
     echo "       - --install"
     echo "       - binary_name input_name"
-    echo "       - --test <directory containing a list of binaries and sample input for them>"
+    echo "       - --test"
+    echo "       - --test <directory containing binaries and their sample input>"
 }
 
 install() {
@@ -16,19 +17,27 @@ install() {
     python3 -m pip install -r requirements.txt
 }
 
+run_test() {
+    python3 -m fuzzball $1 $2;
+}
+
+run_tests() {
+    for sample in $1/*.txt; do
+        binary=$(echo $sample | sed 's/\.txt//i')
+        run_test binary sample
+    done
+}
+
 if [ $1 = "--install" ]; then
     install;
 elif [ $1 = "--help" ]; then
     help;
+elif [ $1 = "--test" ] && [ $# = 1 ]
+    run_tests fuzzball/tests/binaries
 elif [ $1 = "--test" ] && [ -d $2 ]; then
-    [ -d $2 ] && echo "asd"
-    for sample in $2/*.txt; do
-        binary=$(echo $sample | sed 's/\.txt//i')
-        echo $binary $sample
-        python3 -m fuzzball $binary $sample;
-    done
+    run_tests $2
 elif [ $# = 2 ] && ! [[ $1 =~ ^-- ]]; then
-    python3 -m fuzzball "$@";
+    run_test "$@";
 else
     help;
 fi
