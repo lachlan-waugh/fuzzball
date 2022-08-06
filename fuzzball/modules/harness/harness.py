@@ -1,5 +1,6 @@
 from alive_progress import *
 import multiprocessing as MP
+from codes import get_response
 from pwn import *
 
 context.log_level = 'ERROR'

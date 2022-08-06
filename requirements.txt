@@ -1,1 +1,3 @@
 python-magic
+rich
+alive_progress
