@@ -1,6 +1,4 @@
-import xml.etree.ElementTree as ET
-import json
-import csv
+import magic
 import sys
 
 from ..strategies.json import JSONStrategy
@@ -13,8 +11,15 @@ from ..strategies.common import CommonStrategy
 # Returns the relevant strategies to be used for the fuzzing logic
 """
 class Bootstrap:
+    types = {
+        'json': JSONStrategy,
+        'csv': CSVStrategy,
+        'html': XMLStrategy,
+        'plain': TXTStrategy 
+    }
+    
     def __init__(self, sample_input):
-        self._sample_input = sample_input
+        self.sample_input = sample_input
  
     """
     # used for the initial, basic fuzzing logic. 
@@ -28,44 +33,7 @@ class Bootstrap:
     # takes in the sample input, and returns the strategies to mutate that input
     """
     def bootstrap(self):
-        with open(self._sample_input) as sample_input:
-            for lace in self.laces():
-                strategy = lace(sample_input)
-                if strategy:
-                    return strategy
+        file_type = magic.from_file(self.sample_input, mime=True).split('/')[1]
 
-                sample_input.seek(0)
-
-    """
-    # 
-    """
-    def laces(self):
-        return [
-            self.is_xml,
-            self.is_json,
-            self.is_csv,
-            self.is_txt
-        ]
-
-    def is_xml(self, sample_input):
-        try:
-            return XMLStrategy(ET.parse(self._sample_input))
-        except Exception:
-            return None
-
-    def is_json(self, sample_input):
-        try:
-            return JSONStrategy(json.load(sample_input))
-        except ValueError as e:
-            return None
-
-    def is_csv(self, sample_input):
-        try:
-            csvObj = csv.Sniffer().sniff(sample_input.read(1024))
-            if (csvObj.delimiter in [csv.excel.delimiter, csv.excel_tab.delimiter]):
-                return CSVStrategy(sample_input)
-        except csv.Error:
-            return None
-    
-    def is_txt(self, sample_input):
-        return TXTStrategy(sample_input)
+        with open(self.sample_input) as sample_input
+            strategy = self.types.get(file_type, CommonStrategy)(sample_input)
