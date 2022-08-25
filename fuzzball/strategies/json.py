@@ -1,9 +1,10 @@
 import random
 import json
+import Strategy from .strategy
 
 from ..modules.helper import get_random_string, get_random_format_string
 
-class JSONStrategy:
+class JSONStrategy(Strategy):
     def __init__(self, input):
         print('[*] JSON input detected, mutation started')
         try:
