@@ -5,7 +5,7 @@ import logging
 
 from ..modules.helper import get_random_string, get_random_format_string
 
-class TXTStrategy:
+class TXTStrategy(Strategy):
     def __init__(self, sample_input):
         try:
             print('[*] TXT input detected, mutation started')

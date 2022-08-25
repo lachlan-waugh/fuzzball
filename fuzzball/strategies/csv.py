@@ -1,7 +1,8 @@
 import random
 import csv
+import Strategy from .strategy
 
-class CSVStrategy:
+class CSVStrategy(Strategy):
     def __init__(self, sample_input):
         try:
             print('[*] CSV input detected, mutation started')
