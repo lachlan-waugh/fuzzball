@@ -38,20 +38,11 @@ class XMLStrategy:
 
         # 1000, 'testing byteflips'
         for i in range(0, 1000): # test random bitflips on the test input
-            yield self.byteflip()
+            yield self.byteflip(self.text)
 
         # 1000, 'testing random data'
         for i in range(0, 1000): # test random input (invalid XML)
             yield get_random_string((i + 1) * 10)
-
-    def byteflip(self):
-        bytes = bytearray(self.text.decode(), 'UTF-8')
-
-        for i in range(0, len(bytes)):
-            if random.randint(0, 20) == 1:
-                bytes[i] ^= random.getrandbits(7)
-
-        return bytes.decode('ascii')
 
     """
     Adds new nodes to the existing XML test input, which attempt to find
