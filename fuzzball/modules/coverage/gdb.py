@@ -1,4 +1,4 @@
 import Coverage from .coverage
 
-class Tracer(Coverage):
+class Gdb(Coverage):
     def __init__(self):

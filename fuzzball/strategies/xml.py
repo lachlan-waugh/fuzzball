@@ -3,10 +3,11 @@ import copy
 import re
 import xml.etree.ElementTree as ET
 import xml
+import Strategy from .strategy
 
 from ..modules.helper import get_random_string, get_random_format_string
 
-class XMLStrategy:
+class XMLStrategy(Strategy):
     def __init__(self, sample_input):
         try:
             print('[*] XML input detected, mutation started')
