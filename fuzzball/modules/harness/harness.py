@@ -7,21 +7,22 @@ context.log_level = 'ERROR'
 
 """
 # Used to communicate with the target program, handles
-# * sending data
-# * determining the type of the crash
+# > sending data to the target
+# > determining the type of the crash
 """
 class Harness:
     def __init__(self, binary):
         self.binary = binary
 
-    def run(self, inputs):
-        for test_input in inputs:
-            with alive_bar(len(test_input), dual_line=True, title='modifying content'.ljust(20)) as bar:
-                try:
-                    self.test_payload(test_input)
-                except Exception as e:
-                    print(f'[x] Harness.run error: {e}')
-                bar()
+    def run(self, strategies):
+        for inputs in strategies:
+            with alive_bar(len(inputs['tests']), dual_line=True, title=inputs['title'].ljust(20)) as bar:
+                for test_input in inputs['tests']:
+                    try:
+                        self.test_payload(test_input)
+                    except Exception as e:
+                        print(f'[x] Harness.run error: {e}')
+                    bar()
 
     def test_payload(self, payload):
         if not isinstance(payload, str):
